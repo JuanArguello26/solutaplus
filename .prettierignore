@@ -1,0 +1,13 @@
+node_modules
+.next
+generated
+prisma/migrations
+package-lock.json
+
+# Documentación generada por `npm run sistema-experto:generar` (no se edita a mano)
+docs/proyecto-final/modelo-datos.md
+docs/proyecto-final/catalogo-reglas.md
+
+# Salidas generadas (xlsx, motor para n8n)
+sistema-experto/salida
+docs/proyecto-final/evaluaciones-demo.md

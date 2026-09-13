@@ -1,0 +1,11 @@
+# Finales de línea LF en todos los sistemas: Prettier exige LF y en Windows
+# Git convertiría a CRLF al clonar (core.autocrlf), rompiendo format:check.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.pdf binary
+*.docx binary
+*.xlsx binary
