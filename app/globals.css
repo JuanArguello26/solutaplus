@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-foreground: #ffffff;
+  --primary-light: #eff6ff;
+
+  /* green-700/green-800: green-600 con texto blanco solo da ~3.4:1,
+     por debajo del mínimo WCAG AA (4.5:1) para texto normal. */
+  --secondary: #15803d;
+  --secondary-hover: #166534;
+  --secondary-foreground: #ffffff;
+  --secondary-light: #f0fdf4;
+
+  /* Acentos para diferenciar visualmente las 4 tarjetas de servicio
+     (Salud=primary, Pensión=amber, ARL=violet, Seguridad Social=secondary)
+     sin salirse de una paleta profesional de sector salud. */
+  --accent-amber: #b45309;
+  --accent-amber-foreground: #ffffff;
+  --accent-amber-light: #fffbeb;
+
+  --accent-violet: #6d28d9;
+  --accent-violet-foreground: #ffffff;
+  --accent-violet-light: #f5f3ff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-light: var(--primary-light);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-light: var(--secondary-light);
+
+  --color-accent-amber: var(--accent-amber);
+  --color-accent-amber-foreground: var(--accent-amber-foreground);
+  --color-accent-amber-light: var(--accent-amber-light);
+
+  --color-accent-violet: var(--accent-violet);
+  --color-accent-violet-foreground: var(--accent-violet-foreground);
+  --color-accent-violet-light: var(--accent-violet-light);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Grid del Hero: en mobile apila texto → imagen → texto de apoyo (ese
+   orden en el DOM también, para que coincida con el orden de lectura de
+   lectores de pantalla); en desktop, texto + apoyo comparten la columna
+   izquierda y la imagen ocupa la columna derecha en ambas filas. */
+.hero-grid {
+  display: grid;
+  grid-template-areas:
+    "text"
+    "image"
+    "support";
+  gap: 2.5rem;
+}
+
+.hero-grid__text {
+  grid-area: text;
+}
+
+.hero-grid__image {
+  grid-area: image;
+}
+
+.hero-grid__support {
+  grid-area: support;
+}
+
+@media (min-width: 768px) {
+  .hero-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "text image"
+      "support image";
+    align-items: center;
+    gap: 3rem;
+  }
+}
+
+/* Animación genérica de aparición (fade + slight slide-up): CSS puro
+   (no Framer Motion) para que no dependa de que React hidrate — arranca
+   de inmediato con el HTML, sin retrasar el LCP más que su propia
+   duración corta. Se usa en el Hero y en contenido revelado por
+   interacción (ej. respuestas del FAQ). */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up {
+    animation: none;
+  }
+}
+
+/* Cursor del efecto "máquina de escribir" del H1 del Hero (ver
+   components/shared/TypewriterText.tsx) — parpadeo binario (no un fade
+   suave) para que se lea como un cursor de texto real. */
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-caret-blink {
+  animation: caret-blink 1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-caret-blink {
+    animation: none;
+    opacity: 0;
+  }
+}
