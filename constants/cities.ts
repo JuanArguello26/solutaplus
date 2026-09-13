@@ -1,0 +1,25 @@
+export const CITIES = [
+  "Bogotá",
+  "Medellín",
+  "Cali",
+  "Barranquilla",
+  "Cartagena",
+  "Bucaramanga",
+  "Pereira",
+  "Manizales",
+  "Santa Marta",
+  "Cúcuta",
+  "Ibagué",
+  "Villavicencio",
+  "Pasto",
+  "Armenia",
+  "Neiva",
+  "Popayán",
+  "Montería",
+  "Sincelejo",
+  "Valledupar",
+  "Tunja",
+  "Otra",
+] as const;
+
+export type City = (typeof CITIES)[number];
