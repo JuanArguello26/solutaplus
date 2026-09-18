@@ -27,11 +27,11 @@ npm run sistema-experto:generar
 
 ### Entregables
 
-| Archivo                                            | Qué es                                                              |
-| -------------------------------------------------- | ------------------------------------------------------------------- |
-| `sistema-experto/salida/SolutaPLUS_BaseDatos.xlsx` | Las 20 tablas con sus datos iniciales, una pestaña por tabla.       |
-| [`modelo-datos.md`](modelo-datos.md)               | Diagrama entidad-relación y diccionario de cada columna.            |
-| [`catalogo-reglas.md`](catalogo-reglas.md)         | Las 29 reglas, hechos, parámetros, fuentes y casos de demostración. |
+| Archivo                                            | Qué es                                                                               |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `sistema-experto/salida/SolutaPLUS_BaseDatos.xlsx` | Las 20 tablas con sus datos iniciales, una pestaña por tabla. Local: no se versiona. |
+| [`modelo-datos.md`](modelo-datos.md)               | Diagrama entidad-relación y diccionario de cada columna.                             |
+| [`catalogo-reglas.md`](catalogo-reglas.md)         | Las 29 reglas, hechos, parámetros, fuentes y casos de demostración.                  |
 
 Se generan desde `sistema-experto/base-conocimiento/`, así que nunca se
 contradicen. El script valida la integridad antes de escribir: si hay una
@@ -42,11 +42,18 @@ rúbrica: 5 tablas relacionadas, 3 roles, 10 reglas y 3 niveles.
 
 ### Cómo cargarlo en Google Sheets y AppSheet
 
-1. Subir `SolutaPLUS_BaseDatos.xlsx` a Google Drive y abrirlo con Google
+1. Copiar `sistema-experto/usuarios.example.json` como
+   `sistema-experto/usuarios.local.json` y poner las cuentas de Google reales
+   del equipo, con al menos un usuario activo por rol (`ADMIN`, `ASESOR`,
+   `SUPERVISOR`). Ese archivo y el `.xlsx` generado no se suben a git porque
+   el repositorio es público.
+2. Ejecutar `npm run sistema-experto:generar`. El `.xlsx` sale con esas
+   cuentas y con las evaluaciones reales del motor para las 7 solicitudes de
+   demostración (`Evaluaciones`, `Reglas_Activadas`, estado y nivel de cada
+   solicitud).
+3. Subir `SolutaPLUS_BaseDatos.xlsx` a Google Drive y abrirlo con Google
    Sheets (**Archivo → Guardar como Hojas de cálculo de Google**).
-2. En la pestaña `Usuarios`, reemplazar los correos `@example.com` por las
-   cuentas de Google reales del equipo.
-3. En AppSheet: **Create → App → Start with existing data** y elegir la
+4. En AppSheet: **Create → App → Start with existing data** y elegir la
    hoja. La configuración de tipos, vistas, roles y acciones es el
    Módulo 9.
 

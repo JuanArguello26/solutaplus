@@ -191,6 +191,7 @@ export const ORIGENES_EVALUACION = [
   "Automática (n8n)",
   "Manual (AppSheet)",
   "Telegram",
+  "Carga inicial (demo)",
 ] as const;
 export const CANALES_NOTIFICACION = ["Telegram"] as const;
 export const TIPOS_NOTIFICACION = [

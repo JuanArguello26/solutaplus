@@ -10,6 +10,7 @@ import {
   NIVELES_IMPACTO,
   TABLAS,
   fecha,
+  type BaseDatos,
   type Columna,
 } from "@/sistema-experto/base-conocimiento/esquema";
 import {
@@ -28,9 +29,7 @@ import {
   formatearMoneda,
   formatearNumero,
 } from "@/sistema-experto/motor/motor";
-
-/** Momento fijo (hora de Colombia) para que las evaluaciones sean reproducibles. */
-export const FECHA_EVALUACION_DEMO = "2026-09-13T12:00:00";
+import { FECHA_EVALUACION_DEMO } from "./preparar-datos";
 
 const AVISO =
   "> Generado por `npm run sistema-experto:generar`. No editar a mano.";
@@ -59,7 +58,8 @@ function tipoColumna(columna: Columna): string {
   return columna.tipo;
 }
 
-export function generarModeloDatosMd(): string {
+/** `datos`: lo que se carga en Sheets, para informar las filas iniciales reales. */
+export function generarModeloDatosMd(datos: BaseDatos): string {
   const lineas = [
     "# Modelo de datos — Google Sheets / AppSheet",
     "",
@@ -98,7 +98,7 @@ export function generarModeloDatosMd(): string {
   for (const grupo of GRUPOS_TABLA) {
     lineas.push(`## ${grupo}`, "");
     for (const tabla of TABLAS.filter((t) => t.grupo === grupo)) {
-      const filas = SEMILLA[tabla.nombre].length;
+      const filas = datos[tabla.nombre].length;
       lineas.push(
         `### ${tabla.nombre}`,
         "",

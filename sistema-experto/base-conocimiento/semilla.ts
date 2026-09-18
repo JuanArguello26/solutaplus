@@ -69,38 +69,42 @@ const ROLES: Fila[] = [
   },
 ];
 
-// Correos de ejemplo: se reemplazan por las cuentas de Google reales del
-// equipo antes de crear la app en AppSheet.
+// Usuarios de ejemplo. Las cuentas reales del equipo NO van aquí (el
+// repositorio es público): viven en `sistema-experto/usuarios.local.json`,
+// que el generador aplica encima de estos al crear el .xlsx.
+const CORREO_ASESOR_EJEMPLO = "asesor@example.com";
+
 const USUARIOS: Fila[] = [
   {
     Correo: "administrador@example.com",
-    Nombre: "Administrador SolutaPLUS",
+    Nombre: "Administrador (ejemplo)",
     ID_Rol: "ADMIN",
     Estado: "Activo",
     Telegram_Chat_ID: null,
     Fecha_Alta: fecha("2026-09-01"),
   },
   {
-    Correo: "asesor.uno@example.com",
-    Nombre: "Asesor Uno",
-    ID_Rol: "ASESOR",
-    Estado: "Activo",
-    Telegram_Chat_ID: null,
-    Fecha_Alta: fecha("2026-09-01"),
-  },
-  {
-    Correo: "asesor.dos@example.com",
-    Nombre: "Asesor Dos",
-    ID_Rol: "ASESOR",
-    Estado: "Inactivo",
-    Telegram_Chat_ID: null,
-    Fecha_Alta: fecha("2026-09-01"),
-  },
-  {
     Correo: "supervisor@example.com",
-    Nombre: "Supervisor SolutaPLUS",
+    Nombre: "Supervisor (ejemplo)",
     ID_Rol: "SUPERVISOR",
     Estado: "Activo",
+    Telegram_Chat_ID: null,
+    Fecha_Alta: fecha("2026-09-01"),
+  },
+  {
+    Correo: CORREO_ASESOR_EJEMPLO,
+    Nombre: "Asesor (ejemplo)",
+    ID_Rol: "ASESOR",
+    Estado: "Activo",
+    Telegram_Chat_ID: null,
+    Fecha_Alta: fecha("2026-09-01"),
+  },
+  {
+    // Sirve para demostrar que un usuario inactivo no entra a la app.
+    Correo: "usuario.inactivo@example.com",
+    Nombre: "Usuario inactivo (ejemplo)",
+    ID_Rol: "ASESOR",
+    Estado: "Inactivo",
     Telegram_Chat_ID: null,
     Fecha_Alta: fecha("2026-09-01"),
   },
@@ -581,7 +585,7 @@ const SOLICITUDES: Fila[] = CASOS_DEMO.map((caso) => ({
   ID_Solicitante: idSolicitante(caso),
   ID_Servicio: caso.servicio,
   ID_Plan: caso.plan,
-  Asesor: "asesor.uno@example.com",
+  Asesor: CORREO_ASESOR_EJEMPLO,
   Tipo_Vinculacion: caso.tipo,
   Ingreso_Mensual: caso.ingreso ?? null,
   Costos_Deducibles: caso.costos ?? null,
