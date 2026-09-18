@@ -127,7 +127,60 @@ el usuario; nunca introducir credenciales.
   `docs/proyecto-final/evaluaciones-demo.md` (salida real del motor con
   fecha fija, marcada ✅/❌ contra el resultado esperado).
 - Tests: `tests/unit/motor.test.ts`; helper compartido `conCambio` en
-  `tests/unit/utilidades/semilla.ts`. Suite completa: 104 tests.
+  `tests/unit/utilidades/semilla.ts`.
+
+### Preparación para AppSheet (2026-09-13)
+
+- **Equipo (3 integrantes, un rol cada uno):** Juan Argüello = ADMIN
+  (dueño de la hoja y de la app), Brayan Alexander Osorio Morales =
+  SUPERVISOR, Brandon José Guerrero Rey = ASESOR. Los correos de Brayan y
+  Brandon están pendientes: mientras tanto se usan alias `+supervisor` /
+  `+asesor` del correo de Juan (sirven para "preview as" en AppSheet).
+- **Datos personales fuera del repo (es público):** las cuentas reales
+  viven en `sistema-experto/usuarios.local.json` (gitignored; plantilla en
+  `usuarios.example.json`). `semilla.ts` solo tiene usuarios `@example.com`.
+  `SolutaPLUS_BaseDatos.xlsx` también está gitignored porque se genera con
+  esas cuentas. Nunca escribir correos o nombres del equipo en archivos
+  versionados.
+- `scripts/preparar-datos.ts`: `conEvaluacionesDemo` agrega al `.xlsx` la
+  salida real del motor (Evaluaciones, Reglas_Activadas, Estado,
+  Nivel_Resultado e Historial_Estados) con origen "Carga inicial (demo)";
+  `conUsuariosLocales` aplica el JSON local (Zod) y asigna las solicitudes
+  al primer asesor activo. Tests en `tests/unit/preparar-datos.test.ts`.
+
+### Módulo 9 — AppSheet (EN CURSO, 2026-09-17)
+
+- **App creada**: "SolutaPLUS Sistema Experto", appId
+  `e0049feb-5216-49ed-a27d-98f7f66d4f41`, cuenta `giroka12345@gmail.com`.
+  Fuente: la Hoja de Google `1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U`
+  (conversión del .xlsx). Las 20 tablas están cargadas y guardadas.
+- ⚠️ **El .xlsx subido a Drive quedó renombrado a
+  `NO_USAR_original_SolutaPLUS.xlsx`**: en el primer intento AppSheet se
+  conectó a él en vez de a la Hoja (n8n no puede leer .xlsx), hubo que
+  borrar la app y rehacerla. Conectar SIEMPRE la Hoja, no el Excel.
+- **Refs ya configurados**: Solicitudes → Solicitantes / Servicios /
+  Planes / Usuarios (Asesor) / Actividades_Economicas; Usuarios → Roles;
+  Evaluaciones → Solicitudes; Reglas_Activadas → Evaluaciones y Reglas.
+  **Faltan**: Condiciones_Regla y Acciones_Regla (→ Reglas, Hechos),
+  Documentos_Solicitud, Historial_Estados, Actividades_Economicas →
+  Clases_Riesgo, Plan_Servicios. Y faltan seguridad por rol, vistas y
+  dashboard.
+- **Cómo automatizar el editor de AppSheet (aprendido a la mala):**
+  - El **selector de archivos de Drive va en un iframe**: no se puede
+    escribir ni desplazar desde la automatización (llegó a congelar el
+    renderer). Esa selección la hace el usuario a mano.
+  - El complemento de Sheets (**Extensiones → AppSheet → Crear una
+    aplicación**) aparece **deshabilitado**; no sirve como atajo.
+  - **Agregar tablas**: botón `+` junto a "Data" → el diálogo "Add data"
+    sugiere chips *Add Table 'X' from …* (no vuelve a pedir el archivo) →
+    clic en el chip → botón **Add to app**. Localizar el chip con `find`,
+    no por coordenadas: el diálogo reflowea.
+  - **Cambiar el tipo de una columna**: clic en el `select` de TYPE (es
+    nativo) → tecla `r` + Enter = `Ref` → aparece el panel con **Source
+    table** (otro select nativo: se escribe el nombre completo + Enter) →
+    botón **Done** arriba a la derecha. Verificar con screenshot: si el
+    panel no alcanzó a abrir, las teclas caen en la página y cambian el
+    tipo de otra columna (pasó: dejó una columna en `Price`).
 
 Landing page + panel administrativo para una empresa colombiana de afiliación a
 Salud, Pensión, ARL y Seguridad Social. Objetivo: captar leads desde Google,

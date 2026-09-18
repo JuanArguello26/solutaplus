@@ -385,7 +385,7 @@ Documentos entregados por cada solicitud. De aquí sale el hecho porcentaje_docu
 
 ### Historial_Estados
 
-Trazabilidad de cada cambio de estado de una solicitud. _Filas iniciales: 7._
+Trazabilidad de cada cambio de estado de una solicitud. _Filas iniciales: 14._
 
 | Columna | Tipo en AppSheet | Obligatoria | Descripción |
 |---|---|---|---|
@@ -474,14 +474,14 @@ Parte ENTONCES de cada regla, ejecutada en orden. _Filas iniciales: 51._
 
 ### Evaluaciones
 
-Resultado de cada ejecución del motor sobre una solicitud (lo escribe n8n). _Filas iniciales: 0._
+Resultado de cada ejecución del motor sobre una solicitud (lo escribe n8n). _Filas iniciales: 7._
 
 | Columna | Tipo en AppSheet | Obligatoria | Descripción |
 |---|---|---|---|
 | **ID_Evaluacion** 🔑 | Text | Sí | Identificador de la evaluación. |
 | ID_Solicitud | Ref → Solicitudes | Sí | Solicitud evaluada. |
 | Fecha | DateTime | Sí | Momento de la evaluación. |
-| Origen | Enum: Automática (n8n) / Manual (AppSheet) / Telegram | Sí | Desde dónde se disparó la evaluación. |
+| Origen | Enum: Automática (n8n) / Manual (AppSheet) / Telegram / Carga inicial (demo) | Sí | Desde dónde se disparó la evaluación. |
 | Nivel_Resultado | Enum: Viable / Requiere revisión / Crítica | Sí | Clasificación final. |
 | Estado_Sugerido | Enum: Nueva / En evaluación / Pendiente documentos / En revisión / Aprobada / Bloqueada / Afiliada / Cancelada | No | Estado que sugiere el motor (el asesor decide). |
 | Num_Reglas_Activadas | Number | No | Cuántas reglas se activaron. |
@@ -500,7 +500,7 @@ Resultado de cada ejecución del motor sobre una solicitud (lo escribe n8n). _Fi
 
 ### Reglas_Activadas
 
-Explicación trazable: qué reglas se activaron, en qué orden y por qué. _Filas iniciales: 0._
+Explicación trazable: qué reglas se activaron, en qué orden y por qué. _Filas iniciales: 45._
 
 | Columna | Tipo en AppSheet | Obligatoria | Descripción |
 |---|---|---|---|
