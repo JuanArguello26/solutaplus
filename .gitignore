@@ -47,3 +47,8 @@ next-env.d.ts
 # Documento fuente legal entregado por el cliente: se mantiene en local
 # como referencia, pero no se versiona.
 DOCUMENTO_BASE_LEGAL_INTEGRASOCIAL.docx
+
+# Sistema experto: cuentas reales del equipo (el repositorio es público) y el
+# .xlsx que las contiene. Se regeneran con `npm run sistema-experto:generar`.
+sistema-experto/usuarios.local.json
+sistema-experto/salida/SolutaPLUS_BaseDatos.xlsx

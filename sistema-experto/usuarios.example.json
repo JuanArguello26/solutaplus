@@ -1,0 +1,23 @@
+[
+  {
+    "nombre": "Nombre del administrador",
+    "correo": "administrador@gmail.com",
+    "rol": "ADMIN"
+  },
+  {
+    "nombre": "Nombre del supervisor",
+    "correo": "supervisor@gmail.com",
+    "rol": "SUPERVISOR"
+  },
+  {
+    "nombre": "Nombre del asesor",
+    "correo": "asesor@gmail.com",
+    "rol": "ASESOR"
+  },
+  {
+    "nombre": "Usuario inactivo (demo)",
+    "correo": "inactivo@gmail.com",
+    "rol": "ASESOR",
+    "estado": "Inactivo"
+  }
+]

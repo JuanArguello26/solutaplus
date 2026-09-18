@@ -1,19 +1,24 @@
 // Genera los entregables del sistema experto:
 // - sistema-experto/salida/SolutaPLUS_BaseDatos.xlsx (una pestaña por tabla,
-//   listo para subir a Google Drive y abrir con Google Sheets);
+//   listo para subir a Google Drive y abrir con Google Sheets). Incluye las
+//   evaluaciones reales del motor para los casos de demostración y, si
+//   existe `sistema-experto/usuarios.local.json`, las cuentas reales del
+//   equipo (por eso el .xlsx no se versiona);
 // - sistema-experto/salida/motor-n8n.js (el motor para el nodo Code de n8n);
 // - docs/proyecto-final/modelo-datos.md, catalogo-reglas.md y
-//   evaluaciones-demo.md.
+//   evaluaciones-demo.md (sin datos personales).
 //
 // Uso (desde la raíz del proyecto): npm run sistema-experto:generar
 // No escribe nada si la validación de integridad encuentra errores.
 
 import "dotenv/config";
-import { mkdir, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import ExcelJS from "exceljs";
 import {
   TABLAS,
+  type BaseDatos,
   type Columna,
   type TipoColumna,
 } from "@/sistema-experto/base-conocimiento/esquema";
@@ -26,10 +31,12 @@ import {
   generarModeloDatosMd,
 } from "./documentacion";
 import { compilarMotorParaN8n } from "./motor-n8n";
+import { conEvaluacionesDemo, conUsuariosLocales } from "./preparar-datos";
 
 const RAIZ = process.cwd();
 const CARPETA_SALIDA = path.join(RAIZ, "sistema-experto", "salida");
 const CARPETA_DOCS = path.join(RAIZ, "docs", "proyecto-final");
+const RUTA_USUARIOS = path.join(RAIZ, "sistema-experto", "usuarios.local.json");
 
 const FORMATO_NUMERICO: Partial<Record<TipoColumna, string>> = {
   Price: "#,##0",
@@ -42,7 +49,7 @@ function ancho(columna: Columna): number {
   return Math.min(Math.max(columna.nombre.length + 2, minimo), 60);
 }
 
-async function escribirXlsx(ruta: string): Promise<void> {
+async function escribirXlsx(ruta: string, datos: BaseDatos): Promise<void> {
   const libro = new ExcelJS.Workbook();
   libro.creator = "SolutaPLUS";
 
@@ -69,7 +76,7 @@ async function escribirXlsx(ruta: string): Promise<void> {
       cabecera.note = `${columna.tipo}${detalle}${columna.clave ? " (clave)" : ""}: ${columna.descripcion}`;
     });
 
-    for (const fila of SEMILLA[tabla.nombre]) {
+    for (const fila of datos[tabla.nombre]) {
       hoja.addRow(
         Object.fromEntries(
           tabla.columnas.map((c) => [c.nombre, fila[c.nombre] ?? null]),
@@ -91,19 +98,37 @@ async function escribirXlsx(ruta: string): Promise<void> {
   await libro.xlsx.writeFile(ruta);
 }
 
+function reportarErrores(titulo: string, errores: string[]): boolean {
+  if (errores.length === 0) return false;
+  console.error(`${titulo} tiene ${errores.length} error(es):`);
+  for (const error of errores) console.error(`  - ${error}`);
+  process.exitCode = 1;
+  return true;
+}
+
 async function main(): Promise<void> {
-  const errores = validarBaseDatos(SEMILLA);
-  if (errores.length > 0) {
-    console.error(`La base de datos tiene ${errores.length} error(es):`);
-    for (const error of errores) console.error(`  - ${error}`);
-    process.exitCode = 1;
+  if (reportarErrores("La semilla", validarBaseDatos(SEMILLA))) return;
+
+  const datosDemo = conEvaluacionesDemo(SEMILLA);
+  const usaUsuariosLocales = existsSync(RUTA_USUARIOS);
+  const datos = usaUsuariosLocales
+    ? conUsuariosLocales(
+        datosDemo,
+        JSON.parse(await readFile(RUTA_USUARIOS, "utf8")),
+        new Date(),
+      )
+    : datosDemo;
+  if (reportarErrores("La base de datos final", validarBaseDatos(datos))) {
     return;
   }
 
   // Se genera todo en memoria primero: si algo falla, no queda nada a medias.
   const archivos: [string, string][] = [
     [path.join(CARPETA_SALIDA, "motor-n8n.js"), compilarMotorParaN8n(RAIZ)],
-    [path.join(CARPETA_DOCS, "modelo-datos.md"), generarModeloDatosMd()],
+    [
+      path.join(CARPETA_DOCS, "modelo-datos.md"),
+      generarModeloDatosMd(datosDemo),
+    ],
     [path.join(CARPETA_DOCS, "catalogo-reglas.md"), generarCatalogoReglasMd()],
     [
       path.join(CARPETA_DOCS, "evaluaciones-demo.md"),
@@ -114,20 +139,25 @@ async function main(): Promise<void> {
   await mkdir(CARPETA_SALIDA, { recursive: true });
   await mkdir(CARPETA_DOCS, { recursive: true });
   const rutaXlsx = path.join(CARPETA_SALIDA, "SolutaPLUS_BaseDatos.xlsx");
-  await escribirXlsx(rutaXlsx);
+  await escribirXlsx(rutaXlsx, datos);
   for (const [ruta, contenido] of archivos) await writeFile(ruta, contenido);
 
   const filas = TABLAS.reduce(
-    (total, tabla) => total + SEMILLA[tabla.nombre].length,
+    (total, tabla) => total + datos[tabla.nombre].length,
     0,
   );
   console.log(
-    `✔ ${path.relative(RAIZ, rutaXlsx)} — ${TABLAS.length} tablas, ${filas} filas, ${REGLAS.length} reglas`,
+    `✔ ${path.relative(RAIZ, rutaXlsx)} — ${TABLAS.length} tablas, ${filas} filas, ${REGLAS.length} reglas, ${datos.Evaluaciones.length} evaluaciones`,
+  );
+  console.log(
+    usaUsuariosLocales
+      ? `  Usuarios: ${datos.Usuarios.length} cuentas de ${path.relative(RAIZ, RUTA_USUARIOS)}`
+      : "  Usuarios: de ejemplo (crea sistema-experto/usuarios.local.json con las cuentas reales)",
   );
   for (const [ruta] of archivos) console.log(`✔ ${path.relative(RAIZ, ruta)}`);
 }
 
 main().catch((error: unknown) => {
-  console.error(error);
+  console.error(error instanceof Error ? error.message : error);
   process.exitCode = 1;
 });
