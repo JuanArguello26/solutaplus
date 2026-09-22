@@ -148,7 +148,7 @@ el usuario; nunca introducir credenciales.
   `conUsuariosLocales` aplica el JSON local (Zod) y asigna las solicitudes
   al primer asesor activo. Tests en `tests/unit/preparar-datos.test.ts`.
 
-### Módulo 9 — AppSheet (EN CURSO, 2026-09-17)
+### Módulo 9 — AppSheet (EN CURSO, 2026-09-22)
 
 - **App creada**: "SolutaPLUS Sistema Experto", appId
   `e0049feb-5216-49ed-a27d-98f7f66d4f41`, cuenta `giroka12345@gmail.com`.
@@ -158,13 +158,47 @@ el usuario; nunca introducir credenciales.
   `NO_USAR_original_SolutaPLUS.xlsx`**: en el primer intento AppSheet se
   conectó a él en vez de a la Hoja (n8n no puede leer .xlsx), hubo que
   borrar la app y rehacerla. Conectar SIEMPRE la Hoja, no el Excel.
-- **Refs ya configurados**: Solicitudes → Solicitantes / Servicios /
-  Planes / Usuarios (Asesor) / Actividades_Economicas; Usuarios → Roles;
-  Evaluaciones → Solicitudes; Reglas_Activadas → Evaluaciones y Reglas.
-  **Faltan**: Condiciones_Regla y Acciones_Regla (→ Reglas, Hechos),
-  Documentos_Solicitud, Historial_Estados, Actividades_Economicas →
-  Clases_Riesgo, Plan_Servicios. Y faltan seguridad por rol, vistas y
-  dashboard.
+- **Refs: completos** (verificados tras recargar el editor). Solicitudes →
+  Solicitantes / Servicios / Planes / Usuarios (Asesor) /
+  Actividades_Economicas; Usuarios → Roles; Evaluaciones → Solicitudes;
+  Reglas_Activadas → Evaluaciones y Reglas; Condiciones_Regla y
+  Acciones_Regla → Reglas (*is a part of*) y Hechos; Documentos_Solicitud →
+  Solicitudes (*part of*) y Documentos_Requeridos; Historial_Estados →
+  Solicitudes (*part of*) y Usuarios; Actividades_Economicas →
+  Clases_Riesgo; Plan_Servicios → Planes (*part of*) y Servicios;
+  Notificaciones → Solicitudes.
+- **Tipos mal detectados por AppSheet, ya corregidos** (revisar esto
+  siempre que se recargue el esquema): `Reglas.ID_Regla`,
+  `Condiciones_Regla.ID_Regla` y `Acciones_Regla.ID_Regla` llegaron como
+  **`Price`** (los mostraba como "$R01"); `Usuarios.Nombre` llegó como
+  `Ref`; `Solicitantes.Numero_Documento` y `Telefono` como `Number`.
+- **Enums: las 27 columnas cargadas con sus valores exactos de
+  `esquema.ts`** (Estado, Nivel_Resultado, Tipo_Vinculacion, Operador,
+  Tipo de acción, Categoría, Nivel_Impacto, Estado_Verificacion, Ciudad,
+  etc.), verificadas reabriendo cada columna.
+- **Seguridad por rol** (Table settings → Security):
+  - `Solicitudes`, *Security filter*:
+    `AND(LOOKUP(USEREMAIL(),"Usuarios","Correo","Estado")="Activo",
+    OR(IN(LOOKUP(USEREMAIL(),"Usuarios","Correo","ID_Rol"),
+    LIST("ADMIN","SUPERVISOR")), [Asesor]=USEREMAIL()))`.
+    Probado con *Preview app as*: el asesor ve las suyas y el usuario
+    `+inactivo` **no ve ninguna**.
+  - Base de conocimiento (`Reglas`, `Condiciones_Regla`, `Acciones_Regla`,
+    `Hechos`, `Parametros`) y `Usuarios`, *Are updates allowed?*:
+    `IF(LOOKUP(USEREMAIL(),"Usuarios","Correo","ID_Rol")="ADMIN",
+    "ALL_CHANGES","READ_ONLY")` → solo el Administrador edita las reglas.
+  - **No poner un Security filter en `Usuarios`**: se consultaría a sí
+    misma con LOOKUP (circular). El control de esa tabla es por permiso de
+    edición, no por filtro de filas.
+  - AppSheet avisa que los filtros de seguridad **desactivan "Quick sync"**.
+    Es informativo y esperado, no un error que haya que arreglar.
+- **Vistas creadas**: `Solicitudes` (tabla, primaria, agrupada por
+  `Nivel_Resultado`), `Base de conocimiento` (tabla de Reglas), y el
+  `Tablero` (dashboard) con 3 gráficas de referencia: *Solicitudes por
+  nivel*, *Solicitudes por estado* y *Reglas activadas por impacto*.
+- **Falta**: vista de detalle de la solicitud con su Evaluación y las
+  Reglas_Activadas, formulario con validaciones, acción de cambio de
+  estado que registre en `Historial_Estados`, y la auditoría del módulo.
 - **Cómo automatizar el editor de AppSheet (aprendido a la mala):**
   - El **selector de archivos de Drive va en un iframe**: no se puede
     escribir ni desplazar desde la automatización (llegó a congelar el
@@ -186,9 +220,33 @@ el usuario; nunca introducir credenciales.
   - La extensión de Chrome se desconecta de vez en cuando a mitad de un
     lote: esperar unos segundos, tomar screenshot y retomar desde donde
     quedó (no repetir el lote a ciegas).
-- **Estado al cerrar la sesión (2026-09-17):** todo guardado. En el panel
-  Data queda un ícono ⚠ sin revisar (y un punto amarillo en Usuarios): es
-  lo primero que hay que mirar al retomar.
+  - **`form_input` sobre el `select` de TYPE es mucho más confiable que
+    teclear** (`r` + Enter). Con `find` se obtiene el `ref` del combobox y
+    se le pasa el valor exacto (`Ref`, `Enum`, `EnumList`, `LongText`…);
+    luego `find` devuelve **Source table**, **Is a part of?** y **Done**.
+  - **La grilla de columnas está virtualizada** (`ReactVirtualized__Grid`):
+    las columnas que no se ven **no existen en el DOM**. En tablas grandes
+    (Solicitudes tiene 22) hay que desplazar el contenedor hasta que la
+    fila aparezca; si no, la automatización cree que la columna no existe.
+  - **Navegar entre tablas**: basta con `location.hash =
+    "#Data.Columns.<Tabla>"`; la app reacciona sin recargar.
+  - ⚠️ **La pestaña tiene que estar visible.** Si `document.hidden` es
+    `true` (otra pestaña al frente o ventana minimizada), Chrome frena los
+    temporizadores y el editor **pierde los cambios en silencio**: al
+    escribir varios valores de un Enum, su *debounce* los agrupa y **solo
+    guarda el último** (la lista queda vacía salvo el último valor).
+    Comprobarlo con `document.hidden` + un `setInterval` de prueba antes de
+    automatizar. Si no se puede traer la pestaña al frente, hay que dejar
+    **~4 s entre valor y valor** y **verificar reabriendo la columna**
+    después de escribirla; sin esa verificación el log miente.
+  - Los valores de un Enum se escriben en la lista **Values** (botón `Add`
+    por cada valor). Nada de `eval`/atajos: poner el valor, `blur`, esperar
+    y releer.
+- **Estado al cerrar la sesión (2026-09-22):** todo guardado y verificado
+  tras recargar el editor. Los avisos ⚠ del panel Data (el punto amarillo
+  de Usuarios era el `Nombre` tipado como `Ref`, y los de enums sin
+  valores) ya están resueltos. Queda pendiente lo listado arriba en
+  "Falta".
 
 Landing page + panel administrativo para una empresa colombiana de afiliación a
 Salud, Pensión, ARL y Seguridad Social. Objetivo: captar leads desde Google,
@@ -908,30 +966,19 @@ el usuario pida cambiarlas:
 sección "Módulo 9 — AppSheet" al inicio de este archivo). Se trabaja en el
 navegador real del usuario (Brave) con Claude in Chrome, sobre la app
 `e0049feb-5216-49ed-a27d-98f7f66d4f41` con la cuenta `giroka12345@gmail.com`.
-Orden sugerido (de más a menos puntos en la rúbrica):
 
-1. Refs que faltan: Condiciones_Regla y Acciones_Regla (`ID_Regla` →
-   Reglas, `ID_Hecho` / `ID_Hecho_Destino` → Hechos), Documentos_Solicitud
-   (→ Solicitudes, Documentos_Requeridos), Historial_Estados (→ Solicitudes,
-   Usuarios), Actividades_Economicas (`ID_Clase` → Clases_Riesgo),
-   Plan_Servicios (→ Planes, Servicios). Marcar "Is a part of" en las
-   tablas hijas (ver `esParteDe` en `esquema.ts`).
-2. Tipos Enum en las columnas de estado (`Estado`, `Nivel_Resultado`,
-   `Tipo_Vinculacion`, etc.): hoy quedaron como `Text`. Los valores válidos
-   están en `esquema.ts`.
-3. Seguridad por rol: Security filters con `USEREMAIL()` y la tabla
-   Usuarios/Roles (el Asesor solo ve sus solicitudes, el Supervisor no
-   edita, solo el Admin edita la base de conocimiento; un usuario Inactivo
-   no entra). Probar con "Preview app as" usando los alias `+asesor`,
-   `+supervisor` e `+inactivo`.
-4. Vistas: Solicitudes (lista + detalle con su Evaluación y las
-   Reglas_Activadas con su explicación), Base de conocimiento (Reglas con
-   sus condiciones y acciones, Parámetros), formulario de solicitud con
-   validaciones y acción de cambio de estado que registre en
-   Historial_Estados.
-5. Dashboard con al menos 3 indicadores (solicitudes por nivel, por
-   estado y críticas pendientes).
-6. Auditoría del módulo y documentarlo como ✅ aquí y en
+Ya están hechos y verificados: los Refs, los tipos Enum de las 27 columnas,
+la corrección de los tipos que AppSheet detectó mal, la seguridad por rol y
+las vistas Solicitudes / Base de conocimiento / Tablero (3 gráficas).
+
+Queda:
+
+1. Vista de detalle de la solicitud que muestre su Evaluación y las
+   Reglas_Activadas con su explicación (es lo que demuestra la
+   trazabilidad que pide la rúbrica).
+2. Formulario de solicitud con validaciones (`Valid_If`, `Required_If`).
+3. Acción de cambio de estado que deje registro en `Historial_Estados`.
+4. Auditoría del módulo y marcarlo ✅ aquí y en
    `docs/proyecto-final/README.md`.
 
 La landing (Módulos 1-6) está completa. Su despliegue es una acción
