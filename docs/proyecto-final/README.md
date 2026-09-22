@@ -11,7 +11,7 @@ Telegram y un agente IA (Gemini). Requisitos y rúbrica:
 | ------ | ------------------------------------------ | --------- |
 | 7      | Base de conocimiento y modelo de datos     | ✅        |
 | 8      | Motor de inferencia y explicación          | ✅        |
-| 9      | App en AppSheet (vistas, roles, dashboard) | Pendiente |
+| 9      | App en AppSheet (vistas, roles, dashboard) | En curso  |
 | 10     | Workflows en n8n                           | Pendiente |
 | 11     | Telegram y agente IA                       | Pendiente |
 | 12     | PDF del informe                            | Pendiente |
