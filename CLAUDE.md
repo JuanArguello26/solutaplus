@@ -181,6 +181,14 @@ el usuario; nunca introducir credenciales.
     botón **Done** arriba a la derecha. Verificar con screenshot: si el
     panel no alcanzó a abrir, las teclas caen en la página y cambian el
     tipo de otra columna (pasó: dejó una columna en `Price`).
+  - Esperar ~5 s tras abrir una tabla antes de tocar sus columnas, y
+    guardar con **SAVE** (arriba a la derecha) después de cada bloque.
+  - La extensión de Chrome se desconecta de vez en cuando a mitad de un
+    lote: esperar unos segundos, tomar screenshot y retomar desde donde
+    quedó (no repetir el lote a ciegas).
+- **Estado al cerrar la sesión (2026-09-17):** todo guardado. En el panel
+  Data queda un ícono ⚠ sin revisar (y un punto amarillo en Usuarios): es
+  lo primero que hay que mirar al retomar.
 
 Landing page + panel administrativo para una empresa colombiana de afiliación a
 Salud, Pensión, ARL y Seguridad Social. Objetivo: captar leads desde Google,
@@ -896,13 +904,36 @@ el usuario pida cambiarlas:
 
 ## Próximo paso
 
-El roadmap de desarrollo (Módulos 1-6) está completo y auditado, más
-varias rondas de iteración visual sobre la landing pública (ver secciones
-arriba: paleta de acentos, sección Ubicación, mascota Foxy, título con
-efecto de escritura). Lo único que queda es la acción manual de despliegue
-(ver checklist en `README.md`), que requiere decisiones del usuario (repo,
-hosting, dominio) y no debe iniciarse sin que lo pida explícitamente. Si
-el usuario sigue pidiendo ajustes visuales, son iteraciones directas — no
-requieren volver a auditar todo el módulo, solo probar en vivo lo que
-cambió (y confirmar con Claude in Chrome si el cambio depende de
-opacity/timers, ver limitación del panel sandbox arriba).
+**Terminar el Módulo 9 (AppSheet)**, que está a medias (detalle en la
+sección "Módulo 9 — AppSheet" al inicio de este archivo). Se trabaja en el
+navegador real del usuario (Brave) con Claude in Chrome, sobre la app
+`e0049feb-5216-49ed-a27d-98f7f66d4f41` con la cuenta `giroka12345@gmail.com`.
+Orden sugerido (de más a menos puntos en la rúbrica):
+
+1. Refs que faltan: Condiciones_Regla y Acciones_Regla (`ID_Regla` →
+   Reglas, `ID_Hecho` / `ID_Hecho_Destino` → Hechos), Documentos_Solicitud
+   (→ Solicitudes, Documentos_Requeridos), Historial_Estados (→ Solicitudes,
+   Usuarios), Actividades_Economicas (`ID_Clase` → Clases_Riesgo),
+   Plan_Servicios (→ Planes, Servicios). Marcar "Is a part of" en las
+   tablas hijas (ver `esParteDe` en `esquema.ts`).
+2. Tipos Enum en las columnas de estado (`Estado`, `Nivel_Resultado`,
+   `Tipo_Vinculacion`, etc.): hoy quedaron como `Text`. Los valores válidos
+   están en `esquema.ts`.
+3. Seguridad por rol: Security filters con `USEREMAIL()` y la tabla
+   Usuarios/Roles (el Asesor solo ve sus solicitudes, el Supervisor no
+   edita, solo el Admin edita la base de conocimiento; un usuario Inactivo
+   no entra). Probar con "Preview app as" usando los alias `+asesor`,
+   `+supervisor` e `+inactivo`.
+4. Vistas: Solicitudes (lista + detalle con su Evaluación y las
+   Reglas_Activadas con su explicación), Base de conocimiento (Reglas con
+   sus condiciones y acciones, Parámetros), formulario de solicitud con
+   validaciones y acción de cambio de estado que registre en
+   Historial_Estados.
+5. Dashboard con al menos 3 indicadores (solicitudes por nivel, por
+   estado y críticas pendientes).
+6. Auditoría del módulo y documentarlo como ✅ aquí y en
+   `docs/proyecto-final/README.md`.
+
+La landing (Módulos 1-6) está completa. Su despliegue es una acción
+manual del usuario (checklist en `README.md`) y no debe iniciarse sin que
+lo pida explícitamente.
