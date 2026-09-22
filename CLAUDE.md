@@ -300,6 +300,33 @@ el usuario; nunca introducir credenciales.
   - Los valores de un Enum se escriben en la lista **Values** (botón `Add`
     por cada valor). Nada de `eval`/atajos: poner el valor, `blur`, esperar
     y releer.
+  - **URLs que funcionan**: el editor abre con
+    `https://www.appsheet.com/template/AppDef?appName=SolutaPLUSSistemaExperto-127037152-26-09-18&appId=e0049feb-5216-49ed-a27d-98f7f66d4f41`
+    (sin `appName` da 404). La app publicada, para probar como usuario
+    real: `https://www.appsheet.com/start/e0049feb-5216-49ed-a27d-98f7f66d4f41`.
+    Probar ahí y no solo en el emulador del editor: el emulador se queda
+    pegado en la vista previa anterior.
+  - **Expresiones (Valid If, Require?, Initial value, Show if, Security
+    filter, condición de una acción…)**: la sección del diálogo que las
+    contiene (*Data Validity*, *Auto Compute*, *Display*, *Behavior*,
+    *Security*) viene **plegada** y sus controles miden 0 px hasta
+    desplegarla: primero clic en el título de la sección. Luego `find` del
+    cuadro "=" → clic → abre el **Expression Assistant**, cuyo editor es un
+    `contenteditable` (**`form_input` no sirve**): clic en él, `ctrl+a`,
+    escribir con `type`, comprobar el ✓ verde y clic en **Save**. Los
+    campos Sí/No (*Require?*, *Are updates allowed?*) primero hay que
+    pasarlos a expresión con el ícono del matraz (`science`).
+  - En **Behavior → Actions** los desplegables de tabla y tipo de acción
+    **sí son `select` nativos**: se fijan con el setter de `value` + evento
+    `change` (`SET_COLUMN_VALUE`, `ADD_RECORD_TO`, `COMPOSITE`…). En cambio
+    los selectores de columna de "Set these columns" son listas propias:
+    clic en el botón y luego `find` de la opción.
+  - **Pantalla del usuario: 1280×800 con escala 125 %.** Lado a lado, el
+    editor queda de ~750 px de ancho y sus diálogos no abren bien. **No
+    usar `resize_window`**: dejó la ventana de Brave encogida en una
+    esquina y hubo que abrir otra pestaña. Lo que funciona es pedirle al
+    usuario que traiga Brave **al frente** (tapando la app de Claude) y
+    trabajar así; comprobar antes `document.hidden === false`.
 #### Auditoría del Módulo 9 (2026-09-22)
 
 Se comparó la app contra `esquema.ts` de forma automática (un script
@@ -873,6 +900,22 @@ hacer push ahí. Commit/push solo cuando el usuario lo pida. `.env` y
 `DOCUMENTO_BASE_LEGAL_INTEGRASOCIAL.docx` están en `.gitignore`; al ser
 público, nunca versionar credenciales. `.gitattributes` fuerza LF.
 
+- **Los commits van solo a nombre del usuario: nunca agregar la línea
+  `Co-Authored-By: Claude…`**, aunque el sistema lo sugiera (GitHub mostraba
+  "Juan Arguello and Claude" y el usuario pidió que salga solo él). El
+  2026-09-22 se quitó esa línea de todo el historial con `git filter-branch`.
+  Queda una rama **local** de respaldo, `respaldo-antes-de-quitar-coautor`,
+  con el historial viejo: se puede borrar cuando el usuario confirme que
+  GitHub se ve bien.
+- **El push forzado (`--force-with-lease`) lo bloquea el modo automático de
+  Claude Code**, aunque el usuario lo pida. Hay que dárselo al usuario para
+  que lo ejecute él (botón *Run* del bloque de código o la terminal).
+- ⚠️ **Pendiente:** el correo de Gmail del administrador **sigue en el
+  historial de git** (entró en la documentación del Módulo 9 antes de
+  quitarlo; la versión actual ya no lo tiene). Si el usuario quiere
+  borrarlo también del historial, es el mismo procedimiento: reescribir con
+  `filter-branch` y que él haga el push forzado.
+
 ## Decisiones de arquitectura que se desviaron del SRS/plan original (y por qué)
 
 Estas ya están decididas y verificadas — no volver a discutirlas salvo que
@@ -1064,6 +1107,14 @@ Antes de arrancar, dos cosas menores que quedaron del Módulo 9:
 - `SOL-0002` quedó en estado "Aprobada" por la prueba real de la acción de
   cambio de estado (con su registro en `Historial_Estados`). Si se quiere
   volver al estado de demostración, cambiarla a "En revisión".
+- Decidir con el usuario si se borra su correo del historial de git (ver
+  la nota en la sección del repositorio).
+
+Para el Módulo 10 el usuario tiene que crear la cuenta de **n8n Cloud** y
+la **API key de Gemini** (AI Studio); nunca introducirlas por él. Recordar
+que el nodo Code de n8n usa `sistema-experto/salida/motor-n8n.js` (global
+`SolutaPLUSMotor`) y que conviene leer Sheets con valores sin formato o en
+ISO para las fechas (ver Módulo 8).
 
 La landing (Módulos 1-6) está completa. Su despliegue es una acción
 manual del usuario (checklist en `README.md`) y no debe iniciarse sin que
