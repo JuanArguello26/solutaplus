@@ -11,7 +11,7 @@ Telegram y un agente IA (Gemini). Requisitos y rúbrica:
 | ------ | ------------------------------------------ | --------- |
 | 7      | Base de conocimiento y modelo de datos     | ✅        |
 | 8      | Motor de inferencia y explicación          | ✅        |
-| 9      | App en AppSheet (vistas, roles, dashboard) | En curso  |
+| 9      | App en AppSheet (vistas, roles, dashboard) | ✅        |
 | 10     | Workflows en n8n                           | Pendiente |
 | 11     | Telegram y agente IA                       | Pendiente |
 | 12     | PDF del informe                            | Pendiente |
@@ -181,3 +181,46 @@ formato (serial) o en formato ISO (`2026-09-13 12:00`).
 **Aproximaciones conocidas:** los aportes se calculan con el valor exacto y
 las filas para Sheets se redondean al peso. El redondeo oficial de la PILA no
 se implementó porque no se verificó su norma.
+
+## Módulo 9 — App en AppSheet
+
+La app **SolutaPLUS Sistema Experto**, en la cuenta de Google del
+administrador, lee
+directamente la Hoja de Google generada en el Módulo 7, con las 20 tablas
+relacionadas.
+
+### Qué hay en la app
+
+- **Solicitudes**: lista agrupada por nivel de resultado (Viable / Requiere
+  revisión / Crítica).
+- **Detalle de una solicitud**: encabezado con su nivel y estado, y de ahí
+  se baja a su **Evaluación** y a las **Reglas activadas**, cada una con su
+  explicación y su impacto, en el orden en que se dispararon. Ese recorrido
+  es la trazabilidad que pide la rúbrica: para SOL-0001 se ven las 7 reglas
+  encadenadas hasta el total de $580.440, el mismo del ejemplo de la UGPP.
+- **Base de conocimiento**: las reglas con sus condiciones y acciones.
+- **Tablero**: solicitudes por nivel, solicitudes por estado y reglas
+  activadas por impacto.
+
+### Roles
+
+| Rol           | Solicitudes    | Base de conocimiento | Roles y Usuarios |
+| ------------- | -------------- | -------------------- | ---------------- |
+| Administrador | Todas          | Edita                | Ve y edita       |
+| Supervisor    | Todas          | Solo lectura         | No las ve        |
+| Asesor        | Solo las suyas | Solo lectura         | No las ve        |
+
+Un usuario marcado como **Inactivo no ve ninguna solicitud**. Todo esto se
+resuelve con `USEREMAIL()` contra la tabla Usuarios, y se comprobó con la
+función "Preview app as" de AppSheet.
+
+### Formulario y cambio de estado
+
+El formulario de solicitud valida lo mismo que exigen las reglas: el ingreso
+es obligatorio salvo para empleadores, la duración del contrato solo para
+contratistas, el número de trabajadores solo para empleadores, y los costos
+deducibles no pueden superar el ingreso.
+
+La acción **Aprobar solicitud** (visible solo para Administrador y
+Supervisor) cambia el estado y **deja constancia en `Historial_Estados`**
+con el estado anterior, el nuevo, quién lo hizo y cuándo.
