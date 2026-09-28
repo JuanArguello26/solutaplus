@@ -133,9 +133,12 @@ el usuario; nunca introducir credenciales.
 
 - **Equipo (3 integrantes, un rol cada uno):** Juan Argüello = ADMIN
   (dueño de la hoja y de la app), Brayan Alexander Osorio Morales =
-  SUPERVISOR, Brandon José Guerrero Rey = ASESOR. Los correos de Brayan y
-  Brandon están pendientes: mientras tanto se usan alias `+supervisor` /
-  `+asesor` del correo de Juan (sirven para "preview as" en AppSheet).
+  SUPERVISOR, Brandon José Guerrero Rey = ASESOR. Desde el 2026-09-27 la
+  hoja Usuarios y `usuarios.local.json` tienen los correos reales de
+  Brayan y Brandon (las 7 solicitudes demo están asignadas a Brandon). El
+  usuario inactivo de demo sigue siendo un alias `+inactivo` del correo de
+  Juan. Las pruebas anteriores con alias `+asesor` / `+supervisor` (más
+  abajo) son historia: ya no existen esos usuarios.
 - **Datos personales fuera del repo (es público):** las cuentas reales
   viven en `sistema-experto/usuarios.local.json` (gitignored; plantilla en
   `usuarios.example.json`). `semilla.ts` solo tiene usuarios `@example.com`.
@@ -1264,11 +1267,12 @@ de este archivo.
 
 Antes de arrancar (o en paralelo), lo que quedó abierto:
 
-- **Correos reales de Brayan (SUPERVISOR) y Brandon (ASESOR):** hoy son
-  alias `+supervisor` / `+asesor` de la cuenta del administrador. Al
-  tenerlos: cambiar `Correo` en la hoja Usuarios y el `Asesor` de las 7
-  solicitudes al correo real de Brandon (los correos van en la Hoja y en
-  `usuarios.local.json`, nunca en archivos versionados).
+- **Correos reales de Brayan y Brandon: HECHO el 2026-09-27** (Usuarios y
+  `Asesor` de las 7 solicitudes, vía Sheets; no queda ningún otro alias
+  `+asesor`/`+supervisor` en la Hoja). Falta probarlo entrando ellos a la
+  app (o con "Preview app as"): el Supervisor debe ver las 7 y el Asesor
+  las suyas. Los correos van solo en la Hoja y en `usuarios.local.json`,
+  nunca en archivos versionados.
 - Compartir con el equipo el deck de la demostración y la carpeta `Files`
   de Drive (ahí quedan los PDF; el enlace de `URL_PDF` solo abre para
   quien tenga acceso).
