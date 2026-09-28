@@ -182,16 +182,55 @@ formato (serial) o en formato ISO (`2026-09-13 12:00`).
 las filas para Sheets se redondean al peso. El redondeo oficial de la PILA no
 se implementó porque no se verificó su norma.
 
-(\*) Módulo 9 auditado el 2026-09-27; quedan dos pendientes menores (ver la
-sección siguiente).
+(\*) Módulo 9 hecho y auditado el 2026-09-22; ampliado y re-auditado el
+2026-09-27 (ver «Ampliación y auditoría del 27-09» al final de su sección).
 
 ## Módulo 9 — App en AppSheet
 
-App "SolutaPLUS Sistema Experto" sobre la Hoja de Google
-`SolutaPLUS_BaseDatos`. Es una app de prototipo con tres roles
-(Administrador, Asesor, Supervisor) y un usuario inactivo de prueba.
+La app **SolutaPLUS Sistema Experto**, en la cuenta de Google del
+administrador, lee
+directamente la Hoja de Google generada en el Módulo 7, con las 20 tablas
+relacionadas.
 
-### Qué incluye
+### Qué hay en la app
+
+- **Solicitudes**: lista agrupada por nivel de resultado (Viable / Requiere
+  revisión / Crítica).
+- **Detalle de una solicitud**: encabezado con su nivel y estado, y de ahí
+  se baja a su **Evaluación** y a las **Reglas activadas**, cada una con su
+  explicación y su impacto, en el orden en que se dispararon. Ese recorrido
+  es la trazabilidad que pide la rúbrica: para SOL-0001 se ven las 7 reglas
+  encadenadas hasta el total de $580.440, el mismo del ejemplo de la UGPP.
+- **Base de conocimiento**: las reglas con sus condiciones y acciones.
+- **Tablero**: solicitudes por nivel, solicitudes por estado y reglas
+  activadas por impacto.
+
+### Roles
+
+| Rol           | Solicitudes    | Base de conocimiento | Roles y Usuarios |
+| ------------- | -------------- | -------------------- | ---------------- |
+| Administrador | Todas          | Edita                | Ve y edita       |
+| Supervisor    | Todas          | Solo lectura         | No las ve        |
+| Asesor        | Solo las suyas | Solo lectura         | No las ve        |
+
+Un usuario marcado como **Inactivo no ve ninguna solicitud**. Todo esto se
+resuelve con `USEREMAIL()` contra la tabla Usuarios, y se comprobó con la
+función "Preview app as" de AppSheet.
+
+### Formulario y cambio de estado
+
+El formulario de solicitud valida lo mismo que exigen las reglas: el ingreso
+es obligatorio salvo para empleadores, la duración del contrato solo para
+contratistas, el número de trabajadores solo para empleadores, y los costos
+deducibles no pueden superar el ingreso.
+
+La acción **Aprobar solicitud** (visible solo para Administrador y
+Supervisor) cambia el estado y **deja constancia en `Historial_Estados`**
+con el estado anterior, el nuevo, quién lo hizo y cuándo.
+
+### Ampliación y auditoría del 27-09
+
+Lo agregado sobre la app del 22-09:
 
 - **Datos**: las 20 tablas con sus referencias (`Ref`) y listas (`Enum`).
 - **Seguridad por fila**: usuario `Activo` y, para el Asesor, solo las
@@ -210,7 +249,7 @@ App "SolutaPLUS Sistema Experto" sobre la Hoja de Google
   PDF de dos páginas con los datos, el resultado y la tabla de reglas con su
   explicación.
 
-### Auditoría (2026-09-27)
+#### Auditoría (2026-09-27)
 
 | Categoría                  | Resultado                                                                                                                                                         | Acción                                                                           |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
@@ -222,7 +261,7 @@ App "SolutaPLUS Sistema Experto" sobre la Hoja de Google
 | Limitación aceptada        | La tabla Usuarios no tiene filtro: los correos y el chat de Telegram del equipo (3 personas) son visibles para quien inicie sesión. Se usa en las reglas de rol. | Documentada. Alternativa futura: vista o tabla aparte con solo nombre y rol.     |
 | Limitación aceptada        | Un Solicitante nuevo sin solicitud no lo ve un Asesor hasta que exista una.                                                                                       | Documentada; no afecta el flujo (los solicitantes entran por la landing o n8n).  |
 | Limitación aceptada        | El PDF queda en la carpeta `Files` que crea AppSheet, no en una carpeta propia.                                                                                   | Documentada.                                                                     |
-| Pendiente menor            | Renombrar el bot («New Bot») y guardar el enlace del PDF en `URL_PDF`.                                                                                            | Cosmético; no bloquea.                                                           |
+| Cosmético                  | Bot «New Bot» sin nombre y `URL_PDF` vacío.                                                                                                                       | Corregido: bot «Generar informe PDF» y enlace de búsqueda en Drive en `URL_PDF`. |
 | Bitácora de estados        | «Registrar cambio de estado» escribe en Historial_Estados: verificado el 2026-09-27 (fila con ID único, estados, usuario, fecha y comentario).                   | Verificado. Comentario fijo «Aprobada desde AppSheet…», correcto solo al aprobar. |
 
 Las categorías de rendimiento, accesibilidad y SEO de las auditorías de la

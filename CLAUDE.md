@@ -148,7 +148,7 @@ el usuario; nunca introducir credenciales.
   `conUsuariosLocales` aplica el JSON local (Zod) y asigna las solicitudes
   al primer asesor activo. Tests en `tests/unit/preparar-datos.test.ts`.
 
-### Módulo 9 — AppSheet (✅ auditado 2026-09-27; 2 pendientes menores)
+### Módulo 9 — AppSheet ✅ (hecho + auditado 2026-09-22; ampliado y re-auditado 2026-09-27)
 
 Auditoría documentada en `docs/proyecto-final/README.md` (sección
 "Módulo 9"). Hallazgos corregidos: Notificaciones no tenía filtro por
@@ -167,22 +167,26 @@ ejecutó sobre SOL-0001 y se volvió a ocultar; la fila de prueba
 `c4e1e0e3` — SOL-0001 Aprobada→Aprobada — sigue en la Hoja, el usuario
 decide si la borra). El
 detalle de solicitud (`Solicitudes_Detail`, columnas en modo Automatic)
-ya incluye `Related Evaluaciones` y demás listas; no se verificó
-visualmente el recorrido evaluación → reglas activadas.
+incluye `Related Evaluaciones` y demás listas, y el recorrido
+evaluación → reglas activadas funciona (ensayado, ver arriba).
 
-(Historial de la sesión de construcción, 2026-09-17 en adelante:)
+(Historial de la construcción, 2026-09-17 en adelante. El trabajo del
+2026-09-22 —Refs, tipos, enums, seguridad, vistas, formulario, acción de
+estado y su auditoría— lo hizo otra sesión del usuario y está
+documentado en la segunda mitad de esta lista, tal cual quedó.)
 
 - **App creada**: "SolutaPLUS Sistema Experto", appId
-  `e0049feb-5216-49ed-a27d-98f7f66d4f41`, cuenta `giroka12345@gmail.com`.
+  `e0049feb-5216-49ed-a27d-98f7f66d4f41`, en la cuenta de Google del
+  administrador (la del `usuarios.local.json`; el repo es público, no
+  escribir el correo aquí).
   Fuente: la Hoja de Google `1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U`
   (conversión del .xlsx). Las 20 tablas están cargadas y guardadas.
 - ⚠️ **El .xlsx subido a Drive quedó renombrado a
   `NO_USAR_original_SolutaPLUS.xlsx`**: en el primer intento AppSheet se
   conectó a él en vez de a la Hoja (n8n no puede leer .xlsx), hubo que
   borrar la app y rehacerla. Conectar SIEMPRE la Hoja, no el Excel.
-- **Estado observado en el editor (2026-09-22, solo lectura; la app
-  figuraba modificada ese mismo día fuera de las sesiones documentadas,
-  sin confirmar por quién):**
+- **Estado del editor a 2026-09-24/27 (lo más reciente; el detalle de la
+  construcción del 22-09 está más abajo):**
   - Editor sin errores ("No issues found"); la ⚠ del 17-sep ya no está.
   - **Refs** en todas las tablas hijas (incl. Condiciones_Regla,
     Acciones_Regla, Documentos_Solicitud, Historial_Estados,
@@ -315,6 +319,103 @@ visualmente el recorrido evaluación → reglas activadas.
   script puede omitir columnas de tablas largas. Un `javascript_tool` que
   dure >30-45 s congela el renderer: lanzar el recorrido sin `await` y
   leer el resultado en otra llamada.
+- **Refs: completos** (verificados tras recargar el editor). Solicitudes →
+  Solicitantes / Servicios / Planes / Usuarios (Asesor) /
+  Actividades_Economicas; Usuarios → Roles; Evaluaciones → Solicitudes;
+  Reglas_Activadas → Evaluaciones y Reglas; Condiciones_Regla y
+  Acciones_Regla → Reglas (*is a part of*) y Hechos; Documentos_Solicitud →
+  Solicitudes (*part of*) y Documentos_Requeridos; Historial_Estados →
+  Solicitudes (*part of*) y Usuarios; Actividades_Economicas →
+  Clases_Riesgo; Plan_Servicios → Planes (*part of*) y Servicios;
+  Notificaciones → Solicitudes.
+- **Tipos mal detectados por AppSheet, ya corregidos** (revisar esto
+  siempre que se recargue el esquema): `Reglas.ID_Regla`,
+  `Condiciones_Regla.ID_Regla` y `Acciones_Regla.ID_Regla` llegaron como
+  **`Price`** (los mostraba como "$R01"); `Usuarios.Nombre` llegó como
+  `Ref`; `Solicitantes.Numero_Documento` y `Telefono` como `Number`.
+- **Enums: las 27 columnas cargadas con sus valores exactos de
+  `esquema.ts`** (Estado, Nivel_Resultado, Tipo_Vinculacion, Operador,
+  Tipo de acción, Categoría, Nivel_Impacto, Estado_Verificacion, Ciudad,
+  etc.), verificadas reabriendo cada columna.
+- **Seguridad por rol** (Table settings → Security):
+  - `Solicitudes`, *Security filter*:
+    `AND(LOOKUP(USEREMAIL(),"Usuarios","Correo","Estado")="Activo",
+    OR(IN(LOOKUP(USEREMAIL(),"Usuarios","Correo","ID_Rol"),
+    LIST("ADMIN","SUPERVISOR")), [Asesor]=USEREMAIL()))`.
+    Probado con *Preview app as*: el asesor ve las suyas y el usuario
+    `+inactivo` **no ve ninguna**.
+  - Base de conocimiento (`Reglas`, `Condiciones_Regla`, `Acciones_Regla`,
+    `Hechos`, `Parametros`) y `Usuarios`, *Are updates allowed?*:
+    `IF(LOOKUP(USEREMAIL(),"Usuarios","Correo","ID_Rol")="ADMIN",
+    "ALL_CHANGES","READ_ONLY")` → solo el Administrador edita las reglas.
+  - **No poner un Security filter en `Usuarios`**: se consultaría a sí
+    misma con LOOKUP (circular). El control de esa tabla es por permiso de
+    edición, no por filtro de filas.
+  - AppSheet avisa que los filtros de seguridad **desactivan "Quick sync"**.
+    Es informativo y esperado, no un error que haya que arreglar.
+- **Vistas creadas**: `Solicitudes` (tabla, primaria, agrupada por
+  `Nivel_Resultado`), `Base de conocimiento` (tabla de Reglas), y el
+  `Tablero` (dashboard) con 3 gráficas: *Solicitudes por nivel*,
+  *Solicitudes por estado* y *Reglas activadas por impacto* (esta última
+  quedó en posición `menu`, ver más abajo).
+- **Trazabilidad (probada en la app real, no solo en el emulador):**
+  `Solicitudes` → SOL-0001 → `Related Evaluaciones` → EVA-0001 →
+  `Related Reglas_Activadas` muestra las 7 reglas en orden de disparo con
+  su explicación y su impacto (R03 → R06 → R08 → R13 → R17 → R18 → R27).
+  Para lograrlo se ajustaron las vistas *inline* que genera AppSheet:
+  - `Solicitudes_Detail`: *Header columns* = `Nivel_Resultado` y `Estado`.
+  - `Evaluaciones_Inline`: tipo **deck**, primary `Nivel_Resultado`,
+    secondary `Estado_Sugerido`, summary `Total_Aportes_Cliente` (en vez de
+    una tabla con las 21 columnas).
+  - `Reglas_Activadas_Inline`: tipo **deck**, primary `ID_Regla`,
+    secondary `Explicacion_Generada`, summary `Nivel_Impacto`, ordenada por
+    `Orden_Disparo`.
+  - ⚠️ **El botón *Expand* de una lista relacionada abre la vista de
+    referencia (`ref`) de esa tabla.** Como la gráfica *Reglas activadas por
+    impacto* era la única vista `ref` de `Reglas_Activadas`, *Expand* abría
+    la gráfica en vez de la lista. Se pasó la gráfica a posición `menu` y
+    el *Expand* volvió a la lista. Si se crea una gráfica de referencia
+    sobre una tabla que también se expande, dejarla en `menu`.
+- **Más tipos corregidos** (AppSheet vuelve a equivocarse en cada recarga
+  del esquema): `Solicitudes.Ingreso_Mensual` y `Costos_Deducibles`, y en
+  `Evaluaciones` `IBC`, `Aporte_Salud`, `Aporte_Pension`, `Aporte_ARL` y
+  `Total_Aportes_Cliente` debían ser **`Price`** (llegaron como `Number`);
+  `Explicacion_IA` y `Hechos_Finales_JSON` debían ser **`LongText`**
+  (llegaron como `Text` y `File`).
+- **Validaciones del formulario de Solicitudes** (Data → columna → *Data
+  Validity* / *Auto Compute*), alineadas con las reglas del motor:
+  - `Ingreso_Mensual`: *Require?* `[Tipo_Vinculacion] <> "Empleador"`;
+    *Valid If* `OR(ISBLANK([Ingreso_Mensual]), [Ingreso_Mensual] > 0)`.
+  - `Duracion_Contrato_Dias`: *Require?* `[Tipo_Vinculacion] =
+    "Contratista"` (regla R16); *Valid If* `> 0`.
+  - `Numero_Trabajadores`: *Require?* `[Tipo_Vinculacion] = "Empleador"`;
+    *Valid If* `>= 1`.
+  - `Costos_Deducibles`: *Valid If* no negativo y menor que el ingreso.
+  - `Estado`: *Initial value* `"Nueva"`. `Fecha_Creacion` y
+    `Fecha_Ultima_Gestion` ya traían `NOW()` de fábrica.
+- **Acción de cambio de estado** (Behavior → Actions, tabla Solicitudes),
+  en tres piezas porque el orden importa:
+  1. `Registrar cambio de estado` (*add a new row to another table*) →
+     `Historial_Estados`: `ID_Historial = UNIQUEID()`, `ID_Solicitud`,
+     `Estado_Anterior = [Estado]` (se lee **antes** de cambiarlo),
+     `Estado_Nuevo = "Aprobada"`, `Usuario = USEREMAIL()`, `Fecha = NOW()`,
+     `Comentario`. Position `Hide`.
+  2. `Marcar aprobada` (*set the values of some columns*): `Estado =
+     "Aprobada"`, `Fecha_Ultima_Gestion = NOW()`. Position `Hide`.
+  3. `Aprobar solicitud` (*Grouped*): ejecuta 1 y luego 2. Condición
+     `AND([Estado] <> "Aprobada", IN(LOOKUP(USEREMAIL(),"Usuarios",
+     "Correo","ID_Rol"), LIST("ADMIN","SUPERVISOR")))`.
+  **Probado en la app real** con SOL-0002: pasó de "En revisión" a
+  "Aprobada" y se creó la fila de historial con usuario, fecha y ambos
+  estados. Para otros estados (Bloqueada, En revisión…) se duplican las
+  piezas 1 y 2 cambiando el literal.
+- ⚠️ **Las descripciones de columna se ven feas en la app**: el `.xlsx` se
+  generaba con notas en la fila de encabezado (`cabecera.note` en
+  `scripts/generar.ts`) y al convertirlo a Hoja de Google se volvieron
+  *comentarios con hilo*; AppSheet los toma como Description y en los
+  formularios sale "[Threaded comment] Your version of Excel…". Pendiente:
+  quitar esas notas del generador y limpiar la Description de las columnas
+  visibles.
 - **Cómo automatizar el editor de AppSheet (aprendido a la mala):**
   - El **selector de archivos de Drive va en un iframe**: no se puede
     escribir ni desplazar desde la automatización (llegó a congelar el
@@ -336,6 +437,93 @@ visualmente el recorrido evaluación → reglas activadas.
   - La extensión de Chrome se desconecta de vez en cuando a mitad de un
     lote: esperar unos segundos, tomar screenshot y retomar desde donde
     quedó (no repetir el lote a ciegas).
+  - **`form_input` sobre el `select` de TYPE es mucho más confiable que
+    teclear** (`r` + Enter). Con `find` se obtiene el `ref` del combobox y
+    se le pasa el valor exacto (`Ref`, `Enum`, `EnumList`, `LongText`…);
+    luego `find` devuelve **Source table**, **Is a part of?** y **Done**.
+  - **La grilla de columnas está virtualizada** (`ReactVirtualized__Grid`):
+    las columnas que no se ven **no existen en el DOM**. En tablas grandes
+    (Solicitudes tiene 22) hay que desplazar el contenedor hasta que la
+    fila aparezca; si no, la automatización cree que la columna no existe.
+  - **Navegar entre tablas**: basta con `location.hash =
+    "#Data.Columns.<Tabla>"`; la app reacciona sin recargar.
+  - ⚠️ **La pestaña tiene que estar visible.** Si `document.hidden` es
+    `true` (otra pestaña al frente o ventana minimizada), Chrome frena los
+    temporizadores y el editor **pierde los cambios en silencio**: al
+    escribir varios valores de un Enum, su *debounce* los agrupa y **solo
+    guarda el último** (la lista queda vacía salvo el último valor).
+    Comprobarlo con `document.hidden` + un `setInterval` de prueba antes de
+    automatizar. Si no se puede traer la pestaña al frente, hay que dejar
+    **~4 s entre valor y valor** y **verificar reabriendo la columna**
+    después de escribirla; sin esa verificación el log miente.
+  - Los valores de un Enum se escriben en la lista **Values** (botón `Add`
+    por cada valor). Nada de `eval`/atajos: poner el valor, `blur`, esperar
+    y releer.
+  - **URLs que funcionan**: el editor abre con
+    `https://www.appsheet.com/template/AppDef?appName=SolutaPLUSSistemaExperto-127037152-26-09-18&appId=e0049feb-5216-49ed-a27d-98f7f66d4f41`
+    (sin `appName` da 404). La app publicada, para probar como usuario
+    real: `https://www.appsheet.com/start/e0049feb-5216-49ed-a27d-98f7f66d4f41`.
+    Probar ahí y no solo en el emulador del editor: el emulador se queda
+    pegado en la vista previa anterior.
+  - **Expresiones (Valid If, Require?, Initial value, Show if, Security
+    filter, condición de una acción…)**: la sección del diálogo que las
+    contiene (*Data Validity*, *Auto Compute*, *Display*, *Behavior*,
+    *Security*) viene **plegada** y sus controles miden 0 px hasta
+    desplegarla: primero clic en el título de la sección. Luego `find` del
+    cuadro "=" → clic → abre el **Expression Assistant**, cuyo editor es un
+    `contenteditable` (**`form_input` no sirve**): clic en él, `ctrl+a`,
+    escribir con `type`, comprobar el ✓ verde y clic en **Save**. Los
+    campos Sí/No (*Require?*, *Are updates allowed?*) primero hay que
+    pasarlos a expresión con el ícono del matraz (`science`).
+  - En **Behavior → Actions** los desplegables de tabla y tipo de acción
+    **sí son `select` nativos**: se fijan con el setter de `value` + evento
+    `change` (`SET_COLUMN_VALUE`, `ADD_RECORD_TO`, `COMPOSITE`…). En cambio
+    los selectores de columna de "Set these columns" son listas propias:
+    clic en el botón y luego `find` de la opción.
+  - **Pantalla del usuario: 1280×800 con escala 125 %.** Lado a lado, el
+    editor queda de ~750 px de ancho y sus diálogos no abren bien. **No
+    usar `resize_window`**: dejó la ventana de Brave encogida en una
+    esquina y hubo que abrir otra pestaña. Lo que funciona es pedirle al
+    usuario que traiga Brave **al frente** (tapando la app de Claude) y
+    trabajar así; comprobar antes `document.hidden === false`.
+#### Auditoría del Módulo 9 (2026-09-22)
+
+Se comparó la app contra `esquema.ts` de forma automática (un script
+temporal volcó tabla→columna→tipo y se cruzó con lo que reporta el editor).
+Hallazgos y correcciones aplicadas:
+
+1. **Clave primaria equivocada en `Reglas`** (lo más grave): AppSheet la
+   había puesto en `Nombre` porque `ID_Regla` llegó como `Price`; al
+   corregir el tipo, la clave se quedó donde estaba. Todas las referencias
+   a reglas colgaban del nombre y no del código. Corregido: `ID_Regla` es
+   la clave y `Nombre` queda como *label* (efecto lateral bueno: las
+   listas de reglas activadas ahora muestran "Cálculo del IBC" en vez de
+   "R08"). Las otras 19 tablas tenían su clave correcta.
+2. **11 tipos que no coincidían con el esquema**, corregidos:
+   `Servicios.Descripcion`, `Planes.Ideal_Para`,
+   `Documentos_Requeridos.Fuente`, `Historial_Estados.Comentario`,
+   `Hechos.Descripcion`, `Acciones_Regla.Valor` y
+   `Reglas_Activadas.Hechos_Usados` → `LongText`;
+   `Solicitantes.Nombre_Completo` → `Name`;
+   `Solicitudes.Firma_Solicitante` → `Signature`;
+   `Documentos_Solicitud.Archivo` → `File`; y
+   **`Hechos.Valor_Por_Defecto`, que estaba como `Yes/No`** cuando el motor
+   guarda ahí texto (`NO`, `0`) → `Text`.
+3. **Vistas `Roles` y `Usuarios` visibles para todos**: se les puso
+   *Show if* `LOOKUP(USEREMAIL(),"Usuarios","Correo","ID_Rol") = "ADMIN"`.
+   Verificado con *Preview app as* `+asesor`: solo ve Solicitudes, Base de
+   conocimiento y Tablero, y la base de conocimiento le sale **sin botones
+   de agregar/editar/borrar**.
+4. **El ícono de "errores" de la barra superior era del estado sin
+   guardar**: tras guardar queda solo el ✓. No confundirlo con un error
+   real de la app.
+
+Verificado además en la app publicada: cadena Solicitud → Evaluación →
+Reglas activadas intacta después del cambio de clave, y el Tablero carga
+sus 3 gráficas.
+
+- **Estado al cerrar la sesión (2026-09-22):** todo guardado y verificado
+  tras recargar el editor. Los avisos ⚠ del panel Data ya están resueltos.
 
 Landing page + panel administrativo para una empresa colombiana de afiliación a
 Salud, Pensión, ARL y Seguridad Social. Objetivo: captar leads desde Google,
@@ -873,6 +1061,22 @@ hacer push ahí. Commit/push solo cuando el usuario lo pida. `.env` y
 `DOCUMENTO_BASE_LEGAL_INTEGRASOCIAL.docx` están en `.gitignore`; al ser
 público, nunca versionar credenciales. `.gitattributes` fuerza LF.
 
+- **Los commits van solo a nombre del usuario: nunca agregar la línea
+  `Co-Authored-By: Claude…`**, aunque el sistema lo sugiera (GitHub mostraba
+  "Juan Arguello and Claude" y el usuario pidió que salga solo él). El
+  2026-09-22 se quitó esa línea de todo el historial con `git filter-branch`.
+  Queda una rama **local** de respaldo, `respaldo-antes-de-quitar-coautor`,
+  con el historial viejo: se puede borrar cuando el usuario confirme que
+  GitHub se ve bien.
+- **El push forzado (`--force-with-lease`) lo bloquea el modo automático de
+  Claude Code**, aunque el usuario lo pida. Hay que dárselo al usuario para
+  que lo ejecute él (botón *Run* del bloque de código o la terminal).
+- ⚠️ **Pendiente:** el correo de Gmail del administrador **sigue en el
+  historial de git** (entró en la documentación del Módulo 9 antes de
+  quitarlo; la versión actual ya no lo tiene). Si el usuario quiere
+  borrarlo también del historial, es el mismo procedimiento: reescribir con
+  `filter-branch` y que él haga el push forzado.
+
 ## Decisiones de arquitectura que se desviaron del SRS/plan original (y por qué)
 
 Estas ya están decididas y verificadas — no volver a discutirlas salvo que
@@ -1053,28 +1257,38 @@ el usuario pida cambiarlas:
 
 ## Próximo paso
 
-**Terminar el Módulo 9 (AppSheet)**, que está a medias (detalle en la
-sección "Módulo 9 — AppSheet" al inicio de este archivo). Se trabaja en el
-navegador real del usuario (Brave) con Claude in Chrome, sobre la app
-`e0049feb-5216-49ed-a27d-98f7f66d4f41` con la cuenta `giroka12345@gmail.com`.
-Orden sugerido (de más a menos puntos en la rúbrica):
+**Módulo 10 — Workflows en n8n.** El Módulo 9 (AppSheet) quedó hecho y
+auditado el 2026-09-22 y ampliado y re-auditado el 2026-09-27 (permisos,
+Tablero de 4 indicadores, informe PDF): detalle en su sección al inicio
+de este archivo.
 
-Hecho (ver "Estado observado" arriba): Refs, Enums, filtros de seguridad y
-permisos de edición por rol (probados con "Preview app as"), Tablero con 4
-indicadores. Pendiente, en este orden:
+Antes de arrancar (o en paralelo), lo que quedó abierto:
 
-1. **PDF** ✅ funcionando (botón "Generar PDF" → bot → PDF en Drive).
-   Hecho: enlace en `URL_PDF` (búsqueda en Drive) y bot renombrado
-   "New Bot". La celda R2 de la Hoja (SOL-0001) quedó alternada por las
-   pruebas.
-2. Verificar que "Registrar cambio de estado" escriba en
-   Historial_Estados (ejecutarla sobre una solicitud demo, con permiso).
-3. Detalle de solicitud con su Evaluación y las Reglas_Activadas con su
-   explicación (`Solicitudes_Detail`).
-4. Opcional: cambiar el `Asesor` de 1-2 solicitudes a otro correo en la
-   Hoja para demostrar el aislamiento entre asesores.
-5. Auditoría del módulo y documentarlo como ✅ aquí y en
-   `docs/proyecto-final/README.md`.
+- **Correos reales de Brayan (SUPERVISOR) y Brandon (ASESOR):** hoy son
+  alias `+supervisor` / `+asesor` de la cuenta del administrador. Al
+  tenerlos: cambiar `Correo` en la hoja Usuarios y el `Asesor` de las 7
+  solicitudes al correo real de Brandon (los correos van en la Hoja y en
+  `usuarios.local.json`, nunca en archivos versionados).
+- Compartir con el equipo el deck de la demostración y la carpeta `Files`
+  de Drive (ahí quedan los PDF; el enlace de `URL_PDF` solo abre para
+  quien tenga acceso).
+- Las Description de las columnas salen con basura («[Threaded comment]
+  Your version of Excel…») heredada de las notas del `.xlsx`. Quitar
+  `cabecera.note` de `sistema-experto/scripts/generar.ts` y limpiar las
+  columnas visibles.
+- Restos de pruebas en la Hoja: `SOL-0002` quedó «Aprobada» por la prueba
+  real del 22-09 (con su registro en `Historial_Estados`), y hay una fila
+  de prueba de SOL-0001 (Aprobada→Aprobada, 2026-09-27) que solo el
+  usuario puede borrar; la celda `Generar_PDF` de SOL-0001 quedó
+  alternada.
+- Decidir con el usuario si se borra su correo del historial de git (ver
+  la nota en la sección del repositorio).
+
+Para el Módulo 10 el usuario tiene que crear la cuenta de **n8n Cloud** y
+la **API key de Gemini** (AI Studio); nunca introducirlas por él. Recordar
+que el nodo Code de n8n usa `sistema-experto/salida/motor-n8n.js` (global
+`SolutaPLUSMotor`) y que conviene leer Sheets con valores sin formato o en
+ISO para las fechas (ver Módulo 8).
 
 La landing (Módulos 1-6) está completa. Su despliegue es una acción
 manual del usuario (checklist en `README.md`) y no debe iniciarse sin que
