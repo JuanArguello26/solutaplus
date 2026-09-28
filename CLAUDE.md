@@ -160,7 +160,7 @@ bots, doble clic sobre el nombre). Acto 2 ENSAYADO en la app real el
 Related Reglas_Activadas (6, con su explicación). Truco: la app real
 corre en `https://www.appsheet.com/start/<appId>?platform=desktop`
 (pestaña completa, `get_page_text` la lee bien; la vista previa del
-editor no se desplaza). Pendiente menor: guardar el enlace en `URL_PDF`. "Registrar cambio de estado" →
+editor no se desplaza). `URL_PDF` se rellena (ver bot, paso 2). "Registrar cambio de estado" →
 Historial_Estados VERIFICADO el 2026-09-27 (acción oculta que solo corre
 dentro de "Aprobar solicitud"; se mostró un momento como botón, se
 ejecutó sobre SOL-0001 y se volvió a ocultar; la fila de prueba
@@ -283,7 +283,7 @@ visualmente el recorrido evaluación → reglas activadas.
       [_THISROW_AFTER].[Generar_PDF]`; paso "Create a new file" (PDF,
       plantilla `Plantilla_Informe_Solicitud` que AppSheet sí encontró,
       prefijo `CONCATENATE("Informe_", [ID_Solicitud])`, carpeta por
-      defecto). El paso aún no escribe `URL_PDF`.
+      defecto). Paso 2 «Run a data action → Set row values»: `URL_PDF = CONCATENATE("https://drive.google.com/drive/search?q=Informe_", [ID_Solicitud])` (enlace de búsqueda en Drive; AppSheet no expone el enlace del archivo recién creado a los pasos siguientes: Data Explorer solo lista tablas). Verificado el 2026-09-27 en SOL-0001.
     - Prueba única: se pulsó "Generar PDF" en SOL-0001 → la celda R2 de
       la Hoja quedó en TRUE (la acción funciona), pero **no apareció
       ningún PDF en Drive** (búsqueda "Informe_SOL"/"SOL-0001"). Sin
@@ -296,7 +296,7 @@ visualmente el recorrido evaluación → reglas activadas.
       carpeta con doble clic, y con la fila resaltada pulsar `Down` +
       `Enter`. El campo pasó a `DocId=…` (ID del Doc) y el
       bot generó el PDF. Escribir el nombre a mano NO sirve.
-      `URL_PDF` aún no se rellena.
+      `URL_PDF` se rellena con el paso 2 del bot.
     - **Diagnóstico previo (Monitor → Runs, 2026-09-24):** los bots SÍ corren
       en este plan; la ejecución falló con "Template Type: 'Body' could
       not be read due to FileMimeType 'application/octet-stream' is
@@ -1064,7 +1064,7 @@ permisos de edición por rol (probados con "Preview app as"), Tablero con 4
 indicadores. Pendiente, en este orden:
 
 1. **PDF** ✅ funcionando (botón "Generar PDF" → bot → PDF en Drive).
-   Opcional: guardar el enlace del PDF en `URL_PDF` y renombrar el bot
+   Hecho: enlace en `URL_PDF` (búsqueda en Drive) y bot renombrado
    "New Bot". La celda R2 de la Hoja (SOL-0001) quedó alternada por las
    pruebas.
 2. Verificar que "Registrar cambio de estado" escriba en
