@@ -154,8 +154,13 @@ Auditoría documentada en `docs/proyecto-final/README.md` (sección
 "Módulo 9"). Hallazgos corregidos: Notificaciones no tenía filtro por
 fila (ahora sí, igual que Historial_Estados) y las columnas
 `Generar_PDF`/`URL_PDF` estaban solo en la Hoja (ahora también en
-`esquema.ts` y `semilla.ts`). Pendientes menores: renombrar el bot "New
-Bot" y guardar el enlace en `URL_PDF`. "Registrar cambio de estado" →
+`esquema.ts` y `semilla.ts`). Bot renombrado a "Generar informe PDF" (2026-09-27; en la lista de
+bots, doble clic sobre el nombre). Acto 2 ENSAYADO en la app real el
+2026-09-27: Solicitudes → SOL-0003 → Related Evaluaciones → EVA-0003 →
+Related Reglas_Activadas (6, con su explicación). Truco: la app real
+corre en `https://www.appsheet.com/start/<appId>?platform=desktop`
+(pestaña completa, `get_page_text` la lee bien; la vista previa del
+editor no se desplaza). Pendiente menor: guardar el enlace en `URL_PDF`. "Registrar cambio de estado" →
 Historial_Estados VERIFICADO el 2026-09-27 (acción oculta que solo corre
 dentro de "Aprobar solicitud"; se mostró un momento como botón, se
 ejecutó sobre SOL-0001 y se volvió a ocultar; la fila de prueba
