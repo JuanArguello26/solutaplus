@@ -11,7 +11,7 @@ Telegram y un agente IA (Gemini). Requisitos y rúbrica:
 | ------ | ------------------------------------------ | --------- |
 | 7      | Base de conocimiento y modelo de datos     | ✅        |
 | 8      | Motor de inferencia y explicación          | ✅        |
-| 9      | App en AppSheet (vistas, roles, dashboard) | En curso  |
+| 9      | App en AppSheet (vistas, roles, dashboard) | ✅ (\*)   |
 | 10     | Workflows en n8n                           | Pendiente |
 | 11     | Telegram y agente IA                       | Pendiente |
 | 12     | PDF del informe                            | Pendiente |
@@ -181,3 +181,49 @@ formato (serial) o en formato ISO (`2026-09-13 12:00`).
 **Aproximaciones conocidas:** los aportes se calculan con el valor exacto y
 las filas para Sheets se redondean al peso. El redondeo oficial de la PILA no
 se implementó porque no se verificó su norma.
+
+(\*) Módulo 9 auditado el 2026-09-27; quedan dos pendientes menores (ver la
+sección siguiente).
+
+## Módulo 9 — App en AppSheet
+
+App "SolutaPLUS Sistema Experto" sobre la Hoja de Google
+`SolutaPLUS_BaseDatos`. Es una app de prototipo con tres roles
+(Administrador, Asesor, Supervisor) y un usuario inactivo de prueba.
+
+### Qué incluye
+
+- **Datos**: las 20 tablas con sus referencias (`Ref`) y listas (`Enum`).
+- **Seguridad por fila**: usuario `Activo` y, para el Asesor, solo las
+  solicitudes propias. Aplica a Solicitudes, Evaluaciones,
+  Reglas_Activadas, Historial_Estados, Documentos_Solicitud, Solicitantes y
+  Notificaciones.
+- **Permisos de edición por rol**: la base de conocimiento, los catálogos y
+  las tablas que escribe n8n solo las edita el Administrador; el Asesor
+  agrega y actualiza solicitudes; el Supervisor solo actualiza (aprueba) y no
+  edita; Historial_Estados es de solo agregar (bitácora).
+- **Dashboard** (vista Tablero) con cuatro indicadores: solicitudes por
+  nivel, por estado, reglas activadas por impacto y críticas pendientes.
+- **Informe PDF**: botón «Generar PDF» en cada solicitud. Un bot llena la
+  plantilla de Google Docs
+  ([`plantilla-pdf-solicitud.md`](plantilla-pdf-solicitud.md)) y genera un
+  PDF de dos páginas con los datos, el resultado y la tabla de reglas con su
+  explicación.
+
+### Auditoría (2026-09-27)
+
+| Categoría                  | Resultado                                                                                                                                                         | Acción                                                                           |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Seguridad de datos         | Notificaciones (teléfonos y correos) quedó sin filtro por fila.                                                                                                   | Corregido: mismo filtro que las demás tablas de la solicitud.                    |
+| Seguridad de edición       | 20 tablas verificadas una a una; sin tablas editables por todos.                                                                                                  | Sin cambios.                                                                     |
+| Coherencia Hoja ↔ código   | Las columnas `Generar_PDF` y `URL_PDF` existían solo en la Hoja.                                                                                                  | Corregido: agregadas a `esquema.ts` y a la semilla.                              |
+| Duplicidad                 | «Aprobar solicitud» parecía duplicada; es un grupo de dos acciones.                                                                                               | Sin cambios.                                                                     |
+| Robustez del bot           | El primer intento falló por apuntar la plantilla por nombre; la plantilla se referencia ahora por su ID.                                                          | Corregido y verificado con un PDF real.                                          |
+| Limitación aceptada        | La tabla Usuarios no tiene filtro: los correos y el chat de Telegram del equipo (3 personas) son visibles para quien inicie sesión. Se usa en las reglas de rol. | Documentada. Alternativa futura: vista o tabla aparte con solo nombre y rol.     |
+| Limitación aceptada        | Un Solicitante nuevo sin solicitud no lo ve un Asesor hasta que exista una.                                                                                       | Documentada; no afecta el flujo (los solicitantes entran por la landing o n8n).  |
+| Limitación aceptada        | El PDF queda en la carpeta `Files` que crea AppSheet, no en una carpeta propia.                                                                                   | Documentada.                                                                     |
+| Pendiente menor            | Renombrar el bot («New Bot») y guardar el enlace del PDF en `URL_PDF`.                                                                                            | Cosmético; no bloquea.                                                           |
+| Bitácora de estados        | «Registrar cambio de estado» escribe en Historial_Estados: verificado el 2026-09-27 (fila con ID único, estados, usuario, fecha y comentario).                   | Verificado. Comentario fijo «Aprobada desde AppSheet…», correcto solo al aprobar. |
+
+Las categorías de rendimiento, accesibilidad y SEO de las auditorías de la
+landing no aplican a una app de prototipo de AppSheet.

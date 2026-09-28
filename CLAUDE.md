@@ -105,7 +105,7 @@ el usuario; nunca introducir credenciales.
   Evaluaciones/Reglas_Activadas) y `resumenTexto` (Telegram, PDF, IA).
 - **El motor NO puede tener imports en tiempo de ejecución** (solo
   `import type`), ni usar Node, Intl o `instanceof Date`:
-  `scripts/motor-n8n.ts` lo transpila con `ts.transpileModule` a
+  `sistema-experto/scripts/motor-n8n.ts` lo transpila con `ts.transpileModule` a
   `sistema-experto/salida/motor-n8n.js` (global `SolutaPLUSMotor`) para
   el nodo Code de n8n. Un test lo ejecuta en un `vm` aislado y exige el
   mismo resultado que el motor original.
@@ -142,13 +142,30 @@ el usuario; nunca introducir credenciales.
   `SolutaPLUS_BaseDatos.xlsx` también está gitignored porque se genera con
   esas cuentas. Nunca escribir correos o nombres del equipo en archivos
   versionados.
-- `scripts/preparar-datos.ts`: `conEvaluacionesDemo` agrega al `.xlsx` la
+- `sistema-experto/scripts/preparar-datos.ts`: `conEvaluacionesDemo` agrega al `.xlsx` la
   salida real del motor (Evaluaciones, Reglas_Activadas, Estado,
   Nivel_Resultado e Historial_Estados) con origen "Carga inicial (demo)";
   `conUsuariosLocales` aplica el JSON local (Zod) y asigna las solicitudes
   al primer asesor activo. Tests en `tests/unit/preparar-datos.test.ts`.
 
-### Módulo 9 — AppSheet (EN CURSO, 2026-09-17)
+### Módulo 9 — AppSheet (✅ auditado 2026-09-27; 2 pendientes menores)
+
+Auditoría documentada en `docs/proyecto-final/README.md` (sección
+"Módulo 9"). Hallazgos corregidos: Notificaciones no tenía filtro por
+fila (ahora sí, igual que Historial_Estados) y las columnas
+`Generar_PDF`/`URL_PDF` estaban solo en la Hoja (ahora también en
+`esquema.ts` y `semilla.ts`). Pendientes menores: renombrar el bot "New
+Bot" y guardar el enlace en `URL_PDF`. "Registrar cambio de estado" →
+Historial_Estados VERIFICADO el 2026-09-27 (acción oculta que solo corre
+dentro de "Aprobar solicitud"; se mostró un momento como botón, se
+ejecutó sobre SOL-0001 y se volvió a ocultar; la fila de prueba
+`c4e1e0e3` — SOL-0001 Aprobada→Aprobada — sigue en la Hoja, el usuario
+decide si la borra). El
+detalle de solicitud (`Solicitudes_Detail`, columnas en modo Automatic)
+ya incluye `Related Evaluaciones` y demás listas; no se verificó
+visualmente el recorrido evaluación → reglas activadas.
+
+(Historial de la sesión de construcción, 2026-09-17 en adelante:)
 
 - **App creada**: "SolutaPLUS Sistema Experto", appId
   `e0049feb-5216-49ed-a27d-98f7f66d4f41`, cuenta `giroka12345@gmail.com`.
@@ -158,13 +175,141 @@ el usuario; nunca introducir credenciales.
   `NO_USAR_original_SolutaPLUS.xlsx`**: en el primer intento AppSheet se
   conectó a él en vez de a la Hoja (n8n no puede leer .xlsx), hubo que
   borrar la app y rehacerla. Conectar SIEMPRE la Hoja, no el Excel.
-- **Refs ya configurados**: Solicitudes → Solicitantes / Servicios /
-  Planes / Usuarios (Asesor) / Actividades_Economicas; Usuarios → Roles;
-  Evaluaciones → Solicitudes; Reglas_Activadas → Evaluaciones y Reglas.
-  **Faltan**: Condiciones_Regla y Acciones_Regla (→ Reglas, Hechos),
-  Documentos_Solicitud, Historial_Estados, Actividades_Economicas →
-  Clases_Riesgo, Plan_Servicios. Y faltan seguridad por rol, vistas y
-  dashboard.
+- **Estado observado en el editor (2026-09-22, solo lectura; la app
+  figuraba modificada ese mismo día fuera de las sesiones documentadas,
+  sin confirmar por quién):**
+  - Editor sin errores ("No issues found"); la ⚠ del 17-sep ya no está.
+  - **Refs** en todas las tablas hijas (incl. Condiciones_Regla,
+    Acciones_Regla, Documentos_Solicitud, Historial_Estados,
+    Actividades_Economicas → Clases_Riesgo, Plan_Servicios) y **Enum** en
+    las columnas de estado/nivel/tipo/origen/operador. No se verificó
+    "Is a part of".
+  - **Security filters (2026-09-24, guardados y probados con "Preview
+    app as")** en Solicitudes, Evaluaciones, Historial_Estados,
+    Documentos_Solicitud, Reglas_Activadas y Solicitantes: usuario
+    `Activo` y (ADMIN o SUPERVISOR, o el asesor de la solicitud; en
+    Reglas_Activadas vía Evaluaciones, en Solicitantes vía
+    `SELECT(Solicitudes[Asesor], …)`). Resultado: `+inactivo` ve el
+    dashboard vacío; `+supervisor` ve las 7 solicitudes; `+asesor` también
+    ve las 7 porque `preparar-datos.ts` les asigna todas a él (para
+    probar el aislamiento entre asesores haría falta un segundo asesor).
+    Límite: un Solicitante recién creado sin Solicitud no es visible para
+    el Asesor hasta que exista una. Las demás tablas (base de
+    conocimiento, catálogos, Usuarios, Roles) siguen sin filtro a
+    propósito (Usuarios se usa en los LOOKUP). En el editor, los filtros
+    se escriben en el Expression Assistant (textarea normal, `type`
+    funciona sin autocompletado que altere el texto).
+    Las vistas Roles y Usuarios ya se ocultan a Asesor/Supervisor.
+  - **Permisos de edición por tabla (2026-09-24, Data → tabla → engranaje
+    "Table settings" → "Are updates allowed?", verificados leyendo cada
+    tabla):** fórmula por rol con `LOOKUP(USEREMAIL(), "Usuarios",
+    "Correo", "ID_Rol")`. Solo Admin (`ALL_CHANGES`, resto `READ_ONLY`):
+    Reglas, Condiciones_Regla, Acciones_Regla, Hechos, Parametros,
+    Usuarios, Roles, Servicios, Planes, Plan_Servicios,
+    Actividades_Economicas, Clases_Riesgo, Documentos_Requeridos,
+    Evaluaciones, Reglas_Activadas, Notificaciones (estas tres las
+    escribe n8n, no los usuarios). Solicitudes: Admin `ALL_CHANGES`,
+    Asesor `ADDS_AND_UPDATES`, Supervisor `UPDATES_ONLY` (necesita
+    actualizar para aprobar), otros `READ_ONLY`. Solicitantes y
+    Documentos_Solicitud: Admin todo, Asesor `ADDS_AND_UPDATES`, resto
+    solo lectura. Historial_Estados: `ADDS_ONLY` para
+    Admin/Supervisor/Asesor (bitácora de auditoría; nadie la edita ni
+    borra), resto `READ_ONLY`.
+  - **La acción Edit de Solicitudes** tiene condición
+    `IN(rol, LIST("ADMIN","ASESOR"))`: el Supervisor no ve el botón de
+    editar pero sí "Aprobar solicitud" (acción agrupada = "Registrar
+    cambio de estado" + "Marcar aprobada", visible solo para
+    ADMIN/SUPERVISOR y si `[Estado] <> "Aprobada"`; NO es un duplicado).
+    Comprobado con "Preview app as": Supervisor sin "+" ni editar,
+    Asesor con editar, Admin con todo.
+  - **Trampas del diálogo Table settings:** si "Are updates allowed?" está
+    vacío se muestra como 3 chips (Updates/Adds/Deletes/Read-Only): un
+    clic ahí los alterna (cambia permisos sin querer). Para escribir una
+    fórmula: ícono del matraz → clic en la fórmula de plantilla
+    (`SWITCH(USEREMAIL(),...`) → Expression Assistant → clic en la línea
+    del editor → escribir. En el Expression Assistant hay que hacer clic
+    sobre el texto/placeholder del editor para enfocarlo; si no,
+    `ctrl+a` selecciona la página. Añadir en el lote un `javascript_tool`
+    que lance error si `document.body.innerText` no incluye "Update
+    Mode" evita escribir a ciegas.
+  - **Vistas**: primarias Solicitudes, Base de conocimiento, Roles,
+    Usuarios, Tablero; menú "Reglas activadas por impacto"; ref views
+    (gráficos) "Solicitudes por estado" y "Solicitudes por nivel".
+    **Tablero (2026-09-24)**: dashboard con 4 entradas: "Solicitudes por
+    nivel", "Solicitudes por estado", "Reglas activadas por impacto" y
+    "Críticas pendientes" (histograma por `Estado`, agregado COUNT, sobre
+    el slice `Criticas_Pendientes` de Solicitudes =
+    `AND([Nivel_Resultado] = "Crítica", NOT(IN([Estado], LIST("Afiliada",
+    "Cancelada"))))`; con los datos demo da 1: SOL-0003 Bloqueada).
+    Truco de la UI: la vista previa móvil no deja ver el dashboard
+    completo ni desplazarse; el modo tablet (2.º ícono sobre la
+    previsualización) muestra las 4 tarjetas. Los selectores de vista del
+    dashboard son combobox propios (clic → `find` la opción → clic), no
+    `select` nativos: teclear "Crít…" elige otra opción por la tilde.
+    En un `select` nativo real (p. ej. Group aggregate) sí funciona
+    tecla + Enter, pero el menú abierto congela `screenshot` unos 30 s.
+  - **Acciones de Solicitudes**: "Aprobar solicitud" es un grupo
+    ("Registrar cambio de estado" + "Marcar aprobada"), no un duplicado.
+    Sin verificar aún que "Registrar cambio de estado" escriba en
+    Historial_Estados (requiere ejecutarla sobre una solicitud demo).
+  - **PDF**: plantilla de texto en
+    `docs/proyecto-final/plantilla-pdf-solicitud.md`. El Google Doc
+    `Plantilla_Informe_Solicitud` ya existe (2026-09-24) en la carpeta de
+    Drive `SolutaPLUS_Informes` (raíz de Mi unidad de
+    la cuenta dueña de la app, junto a la Hoja `SolutaPLUS_BaseDatos`), con
+    tabla real de 4 columnas para las reglas. Para escribirlo se
+    desactivaron en Docs las comillas tipográficas, listas y enlaces
+    automáticos (si no, rompen los `<<...>>`), y las tabulaciones
+    escritas con `type` no saltan de celda: usar la tecla `Tab`.
+    **Bot de PDF creado el 2026-09-24 y VERIFICADO el 2026-09-27 (genera
+    `Informe_SOL-0001…pdf` de 2 páginas con datos reales y la tabla de
+    reglas; queda en la carpeta `Files` de AppSheet en Drive, no en
+    `SolutaPLUS_Informes`, donde solo vive la plantilla):**
+    - Se agregaron 2 columnas al final de la hoja Solicitudes de la Hoja
+      de Google (R `Generar_PDF`, S `URL_PDF`) y se regeneró el esquema
+      en AppSheet (conservó los Ref/Enum; `Generar_PDF` hubo que
+      ponerla en tipo Yes/No a mano). **Esas 2 columnas NO están en
+      `esquema.ts`**: un `sistema-experto:generar` nuevo no las trae; si
+      se regenera el `.xlsx`, hay que agregarlas o volver a crearlas.
+    - Acción "Generar PDF" en Solicitudes (set values `Generar_PDF =
+      NOT([Generar_PDF])`, alterna para no necesitar reinicio).
+    - Bot "New Bot" (renombrar): evento sobre Solicitudes, solo Updates,
+      condición `[_THISROW_BEFORE].[Generar_PDF] <>
+      [_THISROW_AFTER].[Generar_PDF]`; paso "Create a new file" (PDF,
+      plantilla `Plantilla_Informe_Solicitud` que AppSheet sí encontró,
+      prefijo `CONCATENATE("Informe_", [ID_Solicitud])`, carpeta por
+      defecto). El paso aún no escribe `URL_PDF`.
+    - Prueba única: se pulsó "Generar PDF" en SOL-0001 → la celda R2 de
+      la Hoja quedó en TRUE (la acción funciona), pero **no apareció
+      ningún PDF en Drive** (búsqueda "Informe_SOL"/"SOL-0001"). Sin
+      revisar: Monitor del bot, si el plan FREE ejecuta bots en
+      prototipo, o si tarda. R2 sigue en TRUE (pulsar de nuevo la
+      alterna a FALSE).
+    - **Arreglo (2026-09-27):** el selector de archivos del campo
+      Template ("Upload from" → "Google Drive Files" → "Select a file")
+      no responde a clics del ratón, pero SÍ al teclado: entrar a la
+      carpeta con doble clic, y con la fila resaltada pulsar `Down` +
+      `Enter`. El campo pasó a `DocId=…` (ID del Doc) y el
+      bot generó el PDF. Escribir el nombre a mano NO sirve.
+      `URL_PDF` aún no se rellena.
+    - **Diagnóstico previo (Monitor → Runs, 2026-09-24):** los bots SÍ corren
+      en este plan; la ejecución falló con "Template Type: 'Body' could
+      not be read due to FileMimeType 'application/octet-stream' is
+      unexpected". Causa: se escribió el nombre de la plantilla a mano en
+      el campo Template y AppSheet no apuntó al Google Doc real. Solución:
+      elegir el Doc con el **ícono de archivo del campo Template**
+      (selector de Drive en iframe: lo hace el usuario a mano) y guardar.
+    - Monitor: botón "Monitor" del bot abre una pestaña "AppSheet
+      Monitoring" → Runs → Bots/Events/Process → "Error Message". Tras
+      usarlo, el viewport de la ventana quedó diminuto (769x368) y
+      `resize_window` no lo restauró: hubo que cerrar todas las pestañas
+      del grupo y abrir una ventana nueva con `tabs_context_mcp` +
+      `resize_window`.
+- **Leer el estado real con JS**: los `select` de TYPE solo se renderizan
+  para las filas visibles (lista virtualizada), así que un inventario por
+  script puede omitir columnas de tablas largas. Un `javascript_tool` que
+  dure >30-45 s congela el renderer: lanzar el recorrido sin `await` y
+  leer el resultado en otra llamada.
 - **Cómo automatizar el editor de AppSheet (aprendido a la mala):**
   - El **selector de archivos de Drive va en un iframe**: no se puede
     escribir ni desplazar desde la automatización (llegó a congelar el
@@ -186,9 +331,6 @@ el usuario; nunca introducir credenciales.
   - La extensión de Chrome se desconecta de vez en cuando a mitad de un
     lote: esperar unos segundos, tomar screenshot y retomar desde donde
     quedó (no repetir el lote a ciegas).
-- **Estado al cerrar la sesión (2026-09-17):** todo guardado. En el panel
-  Data queda un ícono ⚠ sin revisar (y un punto amarillo en Usuarios): es
-  lo primero que hay que mirar al retomar.
 
 Landing page + panel administrativo para una empresa colombiana de afiliación a
 Salud, Pensión, ARL y Seguridad Social. Objetivo: captar leads desde Google,
@@ -220,6 +362,8 @@ npm run lint           # ESLint (flat config)
 npm run format:check   # Prettier sin escribir (npm run format escribe)
 npm test               # Vitest, solo tests/unit/**/*.test.ts
 npm run build          # build de producción (con NODE_ENV=production exige env reales, ver guardas en lib/env.ts)
+npm run sistema-experto:generar  # valida la base de conocimiento y regenera .xlsx, motor-n8n.js y docs/proyecto-final/*.md
+npm run prisma:seed    # ⚠️ escribe en el Supabase del proyecto original (ver advertencia arriba)
 ```
 
 - Un solo archivo de test: `npx vitest run tests/unit/lead-schema.test.ts`
@@ -848,8 +992,8 @@ el usuario pida cambiarlas:
 
 ## Notas operativas del entorno (para no perder tiempo repitiendo errores ya resueltos)
 
-- **Windows + Git Bash**, proyecto dentro de una carpeta OneDrive: a veces
-  OneDrive bloquea archivos momentáneamente (`EBUSY`) justo después de
+- **Windows + Git Bash**, proyecto dentro de Google Drive (`G:/Mi unidad/.MastaDev/...`): a veces
+  la sincronización bloquea archivos momentáneamente (`EBUSY`) justo después de
   escribir — reintentar tras `rm -rf .next` suele resolverlo.
 - **`curl.exe` en Git Bash corrompe tildes/ñ** al pasar argumentos con
   acentos (bug de la capa MSYS↔Windows, no de la app). Para probar
@@ -910,28 +1054,21 @@ navegador real del usuario (Brave) con Claude in Chrome, sobre la app
 `e0049feb-5216-49ed-a27d-98f7f66d4f41` con la cuenta `giroka12345@gmail.com`.
 Orden sugerido (de más a menos puntos en la rúbrica):
 
-1. Refs que faltan: Condiciones_Regla y Acciones_Regla (`ID_Regla` →
-   Reglas, `ID_Hecho` / `ID_Hecho_Destino` → Hechos), Documentos_Solicitud
-   (→ Solicitudes, Documentos_Requeridos), Historial_Estados (→ Solicitudes,
-   Usuarios), Actividades_Economicas (`ID_Clase` → Clases_Riesgo),
-   Plan_Servicios (→ Planes, Servicios). Marcar "Is a part of" en las
-   tablas hijas (ver `esParteDe` en `esquema.ts`).
-2. Tipos Enum en las columnas de estado (`Estado`, `Nivel_Resultado`,
-   `Tipo_Vinculacion`, etc.): hoy quedaron como `Text`. Los valores válidos
-   están en `esquema.ts`.
-3. Seguridad por rol: Security filters con `USEREMAIL()` y la tabla
-   Usuarios/Roles (el Asesor solo ve sus solicitudes, el Supervisor no
-   edita, solo el Admin edita la base de conocimiento; un usuario Inactivo
-   no entra). Probar con "Preview app as" usando los alias `+asesor`,
-   `+supervisor` e `+inactivo`.
-4. Vistas: Solicitudes (lista + detalle con su Evaluación y las
-   Reglas_Activadas con su explicación), Base de conocimiento (Reglas con
-   sus condiciones y acciones, Parámetros), formulario de solicitud con
-   validaciones y acción de cambio de estado que registre en
-   Historial_Estados.
-5. Dashboard con al menos 3 indicadores (solicitudes por nivel, por
-   estado y críticas pendientes).
-6. Auditoría del módulo y documentarlo como ✅ aquí y en
+Hecho (ver "Estado observado" arriba): Refs, Enums, filtros de seguridad y
+permisos de edición por rol (probados con "Preview app as"), Tablero con 4
+indicadores. Pendiente, en este orden:
+
+1. **PDF** ✅ funcionando (botón "Generar PDF" → bot → PDF en Drive).
+   Opcional: guardar el enlace del PDF en `URL_PDF` y renombrar el bot
+   "New Bot". La celda R2 de la Hoja (SOL-0001) quedó alternada por las
+   pruebas.
+2. Verificar que "Registrar cambio de estado" escriba en
+   Historial_Estados (ejecutarla sobre una solicitud demo, con permiso).
+3. Detalle de solicitud con su Evaluación y las Reglas_Activadas con su
+   explicación (`Solicitudes_Detail`).
+4. Opcional: cambiar el `Asesor` de 1-2 solicitudes a otro correo en la
+   Hoja para demostrar el aislamiento entre asesores.
+5. Auditoría del módulo y documentarlo como ✅ aquí y en
    `docs/proyecto-final/README.md`.
 
 La landing (Módulos 1-6) está completa. Su despliegue es una acción

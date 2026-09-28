@@ -598,6 +598,8 @@ const SOLICITUDES: Fila[] = CASOS_DEMO.map((caso) => ({
   Fecha_Creacion: fecha(caso.creada),
   Fecha_Ultima_Gestion: fecha(caso.ultimaGestion),
   Firma_Solicitante: null,
+  Generar_PDF: false,
+  URL_PDF: null,
 }));
 
 const DOCUMENTOS_SOLICITUD: Fila[] = CASOS_DEMO.flatMap((caso) =>

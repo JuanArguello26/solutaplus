@@ -539,6 +539,16 @@ export const TABLAS: Tabla[] = [
         "Signature",
         "Firma capturada en AppSheet; se incluye en el PDF.",
       ),
+      col(
+        "Generar_PDF",
+        "Yes/No",
+        "Disparador del bot de AppSheet que genera el informe PDF; la acción «Generar PDF» alterna su valor.",
+      ),
+      col(
+        "URL_PDF",
+        "Url",
+        "Enlace al último informe PDF (reservado: el bot aún no lo rellena).",
+      ),
     ],
   },
   {
