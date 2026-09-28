@@ -1269,13 +1269,33 @@ Antes de arrancar (o en paralelo), lo que quedó abierto:
 
 - **Correos reales de Brayan y Brandon: HECHO el 2026-09-27** (Usuarios y
   `Asesor` de las 7 solicitudes, vía Sheets; no queda ningún otro alias
-  `+asesor`/`+supervisor` en la Hoja). Falta probarlo entrando ellos a la
-  app (o con "Preview app as"): el Supervisor debe ver las 7 y el Asesor
-  las suyas. Los correos van solo en la Hoja y en `usuarios.local.json`,
-  nunca en archivos versionados.
-- Compartir con el equipo el deck de la demostración y la carpeta `Files`
-  de Drive (ahí quedan los PDF; el enlace de `URL_PDF` solo abre para
-  quien tenga acceso).
+  `+asesor`/`+supervisor` en la Hoja). **Probado el 2026-09-28 con
+  "Preview app as"** (el iframe de la vista previa es del mismo origen y
+  se puede leer con `document.querySelector('iframe').contentDocument`):
+  el Supervisor y el Asesor ven las pestañas Solicitudes, Base de
+  conocimiento y Tablero (sin Roles ni Usuarios) y las 7 solicitudes (las
+  7 son de Brandon). Falta que ellos entren con su cuenta real. Los
+  correos van solo en la Hoja y en `usuarios.local.json`, nunca en
+  archivos versionados.
+- **Acceso a la app de AppSheet** (Security → Require sign-in → Manage
+  users): «Allow all signed-in users» está APAGADO, así que solo entra
+  quien esté en la lista. Brayan ya aceptó la invitación; **la de Brandon
+  seguía «Invited» el 2026-09-28** (hay que aceptar el correo o pulsar
+  *Resend*). Ambos quedaron con el permiso «Edit app» (de desarrollador,
+  no solo de uso): decisión pendiente del usuario, no se cambió.
+- **Carpeta `Files` de Drive compartida el 2026-09-28** con Brayan y
+  Brandon como *Lector* (acceso general restringido). Es la que cuelga de
+  `SolutaPLUSSistemaExperto…` y guarda los PDF; hay muchas carpetas
+  llamadas «files» de otros proyectos, así que se llega abriéndola desde
+  la ubicación de un `Informe_SOL-…pdf` en la búsqueda de Drive. En el
+  diálogo de compartir, escribir cada correo, esperar la sugerencia y
+  pulsar Enter (con comas el autocompletado crea chips con correos a
+  medias) y cambiar el rol antes de *Enviar*.
+- Falta compartir el **deck** de la demostración con el equipo (botón
+  *Share* del propio Artifact; no hay acción para hacerlo desde aquí).
+- Ensayo de la demo (2026-09-28): el Tablero y los números del guion
+  coinciden; la app abre en la última vista usada, así que antes de
+  presentar hay que abrirla en **Tablero**.
 - Las Description de las columnas salen con basura («[Threaded comment]
   Your version of Excel…») heredada de las notas del `.xlsx`. Quitar
   `cabecera.note` de `sistema-experto/scripts/generar.ts` y limpiar las
