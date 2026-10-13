@@ -489,6 +489,61 @@ documentado en la segunda mitad de esta lista, tal cual quedó.)
     esquina y hubo que abrir otra pestaña. Lo que funciona es pedirle al
     usuario que traiga Brave **al frente** (tapando la app de Claude) y
     trabajar así; comprobar antes `document.hidden === false`.
+
+#### Entregables del 2026-10-13 (filtros, Excel, PDF) — nota 6,5/10 antes de los arreglos
+
+- **Un compañero del equipo ya había creado** las tablas `Filtros`
+  (Correo, Fecha_Desde, Fecha_Hasta) y `Export` (fechas, nivel, estado,
+  `Export`, `FiltroSolicitudes`, `ExportarReporte`), las vistas "Rango de
+  fechas" y "Reporte" y los slices `Solicitudes_En_Rango` y
+  `Reglas_En_Rango`. Antes de tocar esa zona, confirmar con él: no
+  duplicar ni pisar.
+- **Filtros del Tablero:** las 4 gráficas leen slices filtrados por la fila
+  del usuario en `Filtros`. Los slices `Solicitudes_En_Rango` y
+  `Criticas_Pendientes` son **tolerantes**: si el usuario no tiene fila
+  (hoy solo la tiene el administrador), no se filtra por fecha. Antes el
+  `LOOKUP` vacío podía dejar el Tablero vacío para Brayan y Brandon.
+  Probado con "Preview app as" (asesor sin fila → Tablero con datos).
+- **Excel:** bot "Generar reporte Excel" (evento: cambia `Export` en la tabla
+  `Export`; paso "Create a new file", XLSX, carpeta `"Exportar/Reportes"`,
+  prefijo `"Reporte de solicitudes - " & [Export]`, **Disable Timestamp
+  activo**). La plantilla (`DocId` del paso) es un .xlsx editado a mano:
+  fila 1 cabeceras, fila 2 `<<Start: [FiltroSolicitudes]>>…<<End>>`, fecha
+  con `TEXT([Fecha_Creacion], "dd/MM/yyyy HH:mm")`. Si se regenera con
+  "Create", hay que reescribirla. Verificado abriendo el archivo.
+- **"Disable Timestamp?" del paso Create a new file** quita el sufijo de
+  fecha del nombre, y así el nombre del archivo es predecible. El bot del PDF
+  ahora guarda en `"Informes"` como `Informe_<ID>.pdf`.
+- ⚠️ **La acción "External: open a file" NO funciona en esta app**: devuelve
+  *URI has an invalid signature*, también con una columna virtual tipo File.
+  Causa no determinada. Sustituto que sí funciona: acciones "External: go to
+  a website" con una búsqueda de Drive de nombre exacto
+  (`"https://drive.google.com/drive/search?q=" & ENCODEURL("Informe_" &
+  [ID_Solicitud] & ".pdf")`; igual para el Excel con `[Export]`). Abre Drive
+  con el archivo como primer resultado. La acción del Excel
+  (`AcciónReporteExportar`, **lleva tilde** en su nombre y en la URL del
+  editor) se cambió de OPEN_FILE a esto. El enlace directo al archivo exacto
+  sigue exigiendo n8n o Apps Script.
+- La fila de `Export` quedó con 01/01/2026–31/12/2026 y nivel/estado vacíos.
+  Estaba en 2024–2025 (reporte vacío por defecto).
+- **Pendientes:** (1) `Export` tiene una sola fila compartida y sin filtro
+  por usuario: si varios cambian las fechas se pisan (haría falta una
+  columna `Correo` en la hoja). (2) Falta probar con un Asesor real que el
+  bot respete el filtro de seguridad (el toggle "Bypass Security Filters"
+  está apagado, pero no se probó con un segundo asesor). (3) Brayan y
+  Brandon no han probado con su cuenta. (4) Aviso cosmético en el editor:
+  `Solicitudes_En_Rango` y `Criticas_Pendientes` conservan el nombre de la
+  columna borrada `Archivo_PDF` ("Removing this column"); inofensivo. (5)
+  Dos Excel de prueba en `Exportar/Reportes` (155832 y 155955) y los
+  `Informe_SOL-…` antiguos con sello de fecha, para borrar a mano.
+- Trampas de automatización nuevas: el editor de expresiones de los
+  *slices* tiene encima una caja "Describe the expression in your own
+  words" (IA): escribir ahí **no** cambia la expresión; hay que hacer clic en
+  el editor de código de abajo. El del bot/acciones no la tiene. La ventana
+  de Brave se vuelve a encoger sola a ~500 px (pedir que la maximicen).
+  Las fechas de la app web son campos por segmentos: clic en el día y teclear
+  `ddmmaaaa` seguido.
+
 #### Auditoría del Módulo 9 (2026-09-22)
 
 Se comparó la app contra `esquema.ts` de forma automática (un script
