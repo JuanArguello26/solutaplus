@@ -528,9 +528,15 @@ documentado en la segunda mitad de esta lista, tal cual quedó.)
   Estaba en 2024–2025 (reporte vacío por defecto).
 - **Pendientes:** (1) `Export` tiene una sola fila compartida y sin filtro
   por usuario: si varios cambian las fechas se pisan (haría falta una
-  columna `Correo` en la hoja). (2) Falta probar con un Asesor real que el
-  bot respete el filtro de seguridad (el toggle "Bypass Security Filters"
-  está apagado, pero no se probó con un segundo asesor). (3) Brayan y
+  columna `Correo` en la hoja). (2) **Aislamiento entre asesores: probado
+  parcialmente el 2026-10-13.** Se reasignó SOL-0002 (celda `Asesor` de la
+  hoja Solicitudes; el formulario de la app no deja guardar porque
+  `Costos_Deducibles` es obligatorio y está vacío en esa fila) y con
+  "Preview app as" el asesor dejó de ver SOL-0002 en Solicitudes (6 en vez
+  de 7) y `FiltroSolicitudes` del reporte dio 6. Se restauró el valor
+  original. **Sin probar:** que el bot, ya en el servidor, también filtre;
+  eso solo se confirma si el asesor genera el Excel con su cuenta. El toggle
+  "Bypass Security Filters" del evento está apagado. (3) Brayan y
   Brandon no han probado con su cuenta. (4) Aviso cosmético en el editor:
   `Solicitudes_En_Rango` y `Criticas_Pendientes` conservan el nombre de la
   columna borrada `Archivo_PDF` ("Removing this column"); inofensivo. (5)
