@@ -1,0 +1,300 @@
+{
+  "name": "SolutaPLUS - Landing a Sheets",
+  "nodes": [
+    {
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "solutaplus-landing",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Clave webhook SolutaPLUS"
+        }
+      }
+    },
+    {
+      "name": "Solicitantes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        260,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Solicitantes"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Solicitudes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        480,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Solicitudes"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Radicar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const cuerpo = $(\"Webhook\").first().json.body || {};\nconst texto = (valor) => String(valor ?? \"\").trim();\nif (!texto(cuerpo.fullName) || !texto(cuerpo.phone) || !texto(cuerpo.city)) {\n  throw new Error(\"Faltan datos obligatorios: fullName, phone, city\");\n}\nif (cuerpo.consentAccepted !== true) {\n  throw new Error(\"El solicitante no aceptó el tratamiento de datos\");\n}\nconst siguiente = (tabla, prefijo, campo) => {\n  const numeros = $(tabla).all()\n    .map((item) => Number(String(item.json[campo] || \"\").replace(/\\D/g, \"\")))\n    .filter((n) => Number.isFinite(n));\n  return prefijo + String(Math.max(0, ...numeros) + 1).padStart(4, \"0\");\n};\nconst ahora = new Date().toISOString();\nconst idSolicitante = siguiente(\"Solicitantes\", \"CLI-\", \"ID_Solicitante\");\nconst idSolicitud = siguiente(\"Solicitudes\", \"SOL-\", \"ID_Solicitud\");\n\nreturn [\n  {\n    json: {\n      idSolicitud,\n      solicitante: {\n        ID_Solicitante: idSolicitante,\n        Numero_Documento: texto(cuerpo.document),\n        Nombre_Completo: texto(cuerpo.fullName),\n        Telefono: texto(cuerpo.phone),\n        Correo: texto(cuerpo.email),\n        Ciudad: texto(cuerpo.city),\n        Origen: \"Landing\",\n        Autoriza_Datos: \"Y\",\n        Fecha_Autorizacion: ahora,\n        Telegram_Chat_ID: \"\",\n      },\n      solicitud: {\n        ID_Solicitud: idSolicitud,\n        ID_Solicitante: idSolicitante,\n        ID_Servicio: texto(cuerpo.serviceSlug),\n        ID_Plan: texto(cuerpo.planId),\n        Descripcion_Libre: texto(cuerpo.observations),\n        Estado: \"Nueva\",\n        Fecha_Creacion: ahora,\n        Fecha_Ultima_Gestion: ahora,\n      },\n    },\n  },\n];"
+      }
+    },
+    {
+      "name": "Fila solicitante",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        920,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{ json: $(\"Radicar\").first().json.solicitante }];"
+      }
+    },
+    {
+      "name": "Guardar Solicitantes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1140,
+        300
+      ],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Solicitantes"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": null
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Fila solicitud",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{ json: $(\"Radicar\").first().json.solicitud }];"
+      }
+    },
+    {
+      "name": "Guardar Solicitudes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1580,
+        300
+      ],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Solicitudes"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": null
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Responder",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1800,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, idSolicitud: $(\"Radicar\").first().json.idSolicitud } }}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Solicitantes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Solicitantes": {
+      "main": [
+        [
+          {
+            "node": "Solicitudes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Solicitudes": {
+      "main": [
+        [
+          {
+            "node": "Radicar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Radicar": {
+      "main": [
+        [
+          {
+            "node": "Fila solicitante",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fila solicitante": {
+      "main": [
+        [
+          {
+            "node": "Guardar Solicitantes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Solicitantes": {
+      "main": [
+        [
+          {
+            "node": "Fila solicitud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fila solicitud": {
+      "main": [
+        [
+          {
+            "node": "Guardar Solicitudes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Solicitudes": {
+      "main": [
+        [
+          {
+            "node": "Responder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

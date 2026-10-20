@@ -1,0 +1,851 @@
+{
+  "name": "SolutaPLUS - Evaluar solicitud",
+  "nodes": [
+    {
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "solutaplus-evaluar",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Clave webhook SolutaPLUS"
+        }
+      }
+    },
+    {
+      "name": "Hechos",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        260,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Hechos"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Parametros",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        480,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Parametros"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Reglas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        700,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Reglas"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Condiciones_Regla",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        920,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Condiciones_Regla"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Acciones_Regla",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1140,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Acciones_Regla"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Solicitudes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1360,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Solicitudes"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Solicitantes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1580,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Solicitantes"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Actividades_Economicas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1800,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Actividades_Economicas"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Clases_Riesgo",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2020,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Clases_Riesgo"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Documentos_Solicitud",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2240,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Documentos_Solicitud"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Documentos_Requeridos",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2460,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Documentos_Requeridos"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Evaluaciones",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2680,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Evaluaciones"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Motor",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2900,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Motor de inferencia SolutaPLUS para el nodo Code de n8n.\n// Generado por `npm run sistema-experto:generar` desde sistema-experto/motor/motor.ts. No editar a mano.\n//\n// Uso: SolutaPLUSMotor.evaluarSolicitud(idSolicitud, tablas, { ahora: new Date() })\nconst SolutaPLUSMotor = (function () {\n\"use strict\";\nconst exports = {};\n// Motor de inferencia del sistema experto SolutaPLUS (Módulo 8).\n//\n// Encadenamiento hacia adelante sobre la base de conocimiento que vive en\n// Google Sheets (tablas Hechos, Parametros, Reglas, Condiciones_Regla y\n// Acciones_Regla). En cada ciclo se recorre la agenda por Prioridad y se\n// dispara la primera regla todavía no disparada cuyas condiciones se\n// cumplen; sus acciones pueden escribir hechos que habilitan otras reglas.\n// Cada regla se dispara una sola vez, así que la inferencia siempre termina.\n//\n// RESTRICCIÓN DE DISEÑO: este mismo archivo se transpila sin bundler y se\n// pega en un nodo Code de n8n (ver `scripts/motor-n8n.ts`). Por eso no\n// puede importar nada en tiempo de ejecución (solo `import type`), ni usar\n// APIs de Node, Intl, ni `instanceof Date` (los objetos pueden venir de otro\n// contexto de ejecución).\n//\n// Acepta las filas tal como llegan de Sheets: números como texto (\"12,5\"),\n// booleanos como TRUE/FALSE y fechas como serial de Sheets, ISO o Date.\nObject.defineProperty(exports, \"__esModule\", { value: true });\nexports.formatearMoneda = exports.ErrorExpresion = exports.HECHOS_DEL_MOTOR = exports.SEPARADOR_LISTA = exports.FORMATOS_PLANTILLA = void 0;\nexports.analizarExpresion = analizarExpresion;\nexports.referenciasExpresion = referenciasExpresion;\nexports.calcularExpresion = calcularExpresion;\nexports.analizarPlantilla = analizarPlantilla;\nexports.formatearNumero = formatearNumero;\nexports.compilarBase = compilarBase;\nexports.evaluar = evaluar;\nexports.hechosDesdeTablas = hechosDesdeTablas;\nexports.evaluarSolicitud = evaluarSolicitud;\nexports.filasResultado = filasResultado;\nexports.resumenTexto = resumenTexto;\n// ---------------------------------------------------------------------------\n// Contrato con la base de conocimiento\n// ---------------------------------------------------------------------------\nexports.FORMATOS_PLANTILLA = [\"moneda\"];\n/** Separador de listas en EN_LISTA y en Hechos.Valores_Permitidos. */\nexports.SEPARADOR_LISTA = \"|\";\n/**\n * Hechos cuyo nombre conoce el motor: los de Entrada los arma\n * `hechosDesdeTablas`, los Derivados se leen para armar las filas de\n * resultado y los de Motor son sus contadores. `validacion.ts` exige que\n * existan en la tabla Hechos con este mismo origen.\n */\nexports.HECHOS_DEL_MOTOR = {\n    id_solicitud: \"Entrada\",\n    tipo_vinculacion: \"Entrada\",\n    ingreso_mensual: \"Entrada\",\n    costos_deducibles: \"Entrada\",\n    duracion_contrato_dias: \"Entrada\",\n    clase_riesgo: \"Entrada\",\n    tarifa_arl: \"Entrada\",\n    numero_trabajadores: \"Entrada\",\n    autoriza_datos: \"Entrada\",\n    plan_solicitado: \"Entrada\",\n    porcentaje_documentos: \"Entrada\",\n    horas_sin_gestion: \"Entrada\",\n    estado_sugerido: \"Derivado\",\n    ibc: \"Derivado\",\n    aporte_salud: \"Derivado\",\n    aporte_pension: \"Derivado\",\n    aporte_arl: \"Derivado\",\n    total_aportes_cliente: \"Derivado\",\n    num_reglas_criticas: \"Motor\",\n    num_reglas_advertencia: \"Motor\",\n};\nconst NIVEL_RESULTADO_POR_IMPACTO = {\n    Normal: \"Viable\",\n    Advertencia: \"Requiere revisión\",\n    Crítico: \"Crítica\",\n};\n/** Colombia no tiene horario de verano: UTC−5 todo el año. */\nconst ZONA_HORARIA_COLOMBIA_MINUTOS = -300;\nconst CONTADOR_CRITICAS = \"num_reglas_criticas\";\nconst CONTADOR_ADVERTENCIAS = \"num_reglas_advertencia\";\nconst ES_PARAMETRO = /^[A-Z][A-Z0-9_]*$/;\nconst MS_POR_HORA = 3600000;\nconst MS_POR_DIA = 86400000;\n/** Días entre el origen de los seriales de Sheets (1899-12-30) y 1970-01-01. */\nconst SERIAL_SHEETS_UNIX = 25569;\nclass ErrorExpresion extends Error {\n    constructor(mensaje) {\n        super(mensaje);\n        this.name = \"ErrorExpresion\";\n    }\n}\nexports.ErrorExpresion = ErrorExpresion;\nclass ErrorConfiguracion extends Error {\n}\nclass HechoFaltante extends Error {\n    constructor(hecho) {\n        super(`falta el hecho \"${hecho}\"`);\n        this.hecho = hecho;\n    }\n}\nconst mensajeDe = (error) => error instanceof Error ? error.message : String(error);\n// ---------------------------------------------------------------------------\n// Normalización de valores de Sheets\n// ---------------------------------------------------------------------------\nconst esVacio = (valor) => valor === null ||\n    valor === undefined ||\n    (typeof valor === \"string\" && valor.trim() === \"\");\nfunction aNumero(valor) {\n    if (typeof valor === \"number\")\n        return Number.isFinite(valor) ? valor : null;\n    if (typeof valor !== \"string\")\n        return null;\n    const texto = valor.trim();\n    if (/^-?\\d+(\\.\\d+)?$/.test(texto))\n        return Number(texto);\n    if (/^-?\\d+,\\d+$/.test(texto))\n        return Number(texto.replace(\",\", \".\"));\n    return null;\n}\nconst VERDADEROS = [\"SI\", \"SÍ\", \"TRUE\", \"VERDADERO\", \"Y\", \"YES\"];\nconst FALSOS = [\"NO\", \"FALSE\", \"FALSO\", \"N\"];\nfunction aSiNo(valor) {\n    if (typeof valor === \"boolean\")\n        return valor ? \"SI\" : \"NO\";\n    if (typeof valor === \"number\")\n        return valor === 1 ? \"SI\" : valor === 0 ? \"NO\" : null;\n    if (typeof valor !== \"string\")\n        return null;\n    const texto = valor.trim().toUpperCase();\n    if (VERDADEROS.includes(texto))\n        return \"SI\";\n    if (FALSOS.includes(texto))\n        return \"NO\";\n    return null;\n}\nfunction aTexto(valor) {\n    if (typeof valor === \"string\")\n        return valor.trim() === \"\" ? null : valor.trim();\n    if (typeof valor === \"number\" || typeof valor === \"boolean\")\n        return String(valor);\n    return null;\n}\nfunction normalizar(valor, tipoDato) {\n    if (tipoDato === \"Número\")\n        return aNumero(valor);\n    if (tipoDato === \"SI/NO\")\n        return aSiNo(valor);\n    return aTexto(valor);\n}\nconst esFecha = (valor) => Object.prototype.toString.call(valor) === \"[object Date]\";\nconst FECHA_SIN_ZONA = /^(\\d{4})-(\\d{2})-(\\d{2})(?:[T ](\\d{2}):(\\d{2})(?::(\\d{2}))?(?:\\.\\d+)?)?$/;\n/**\n * Convierte una fecha de Sheets a milisegundos de \"hora de pared\": la hora\n * tal como se ve en la hoja, contada como si fuera UTC. Los Date y los\n * textos sin zona ya son hora de pared; un texto con zona (…Z, …-05:00) es\n * un instante real y se lleva a la zona indicada.\n */\nfunction aHoraDePared(valor, zonaMinutos) {\n    if (esFecha(valor))\n        return Number.isNaN(valor.getTime()) ? null : valor.getTime();\n    if (typeof valor === \"number\")\n        return (valor - SERIAL_SHEETS_UNIX) * MS_POR_DIA;\n    if (typeof valor !== \"string\")\n        return null;\n    const texto = valor.trim();\n    const partes = FECHA_SIN_ZONA.exec(texto);\n    if (partes) {\n        const [, anio, mes, dia, hora = \"0\", minuto = \"0\", segundo = \"0\"] = partes;\n        return Date.UTC(+anio, +mes - 1, +dia, +hora, +minuto, +segundo);\n    }\n    const instante = Date.parse(texto);\n    return Number.isNaN(instante) ? null : instante + zonaMinutos * 60000;\n}\nconst ARIDAD = {\n    MAX: [1, Infinity],\n    MIN: [1, Infinity],\n    ROUND: [1, 2],\n};\nfunction tokenizar(texto) {\n    const tokens = [];\n    const patron = /\\s*(\\d+(?:\\.\\d+)?|[A-Za-z_]\\w*|[+\\-*/(),])/y;\n    let posicion = 0;\n    while (texto.slice(posicion).trim() !== \"\") {\n        patron.lastIndex = posicion;\n        const coincidencia = patron.exec(texto);\n        if (!coincidencia) {\n            const simbolo = texto.slice(posicion).trim()[0];\n            throw new ErrorExpresion(`símbolo no permitido \"${simbolo}\" en \"${texto}\"`);\n        }\n        tokens.push(coincidencia[1]);\n        posicion = patron.lastIndex;\n    }\n    return tokens;\n}\n/** Analiza una expresión como `MAX(ingreso_mensual - costos_deducibles, 0)`. */\nfunction analizarExpresion(texto) {\n    const tokens = tokenizar(texto);\n    if (tokens.length === 0)\n        throw new ErrorExpresion(\"la expresión está vacía\");\n    let i = 0;\n    const actual = () => tokens[i];\n    const consumir = (esperado) => {\n        const token = tokens[i];\n        if (token === undefined || (esperado !== undefined && token !== esperado)) {\n            const que = esperado ? `\"${esperado}\"` : \"un valor\";\n            throw new ErrorExpresion(`se esperaba ${que} en \"${texto}\"`);\n        }\n        i += 1;\n        return token;\n    };\n    const suma = () => {\n        let nodo = producto();\n        while (actual() === \"+\" || actual() === \"-\") {\n            const operador = consumir();\n            nodo = {\n                tipo: \"binario\",\n                operador,\n                izquierda: nodo,\n                derecha: producto(),\n            };\n        }\n        return nodo;\n    };\n    const producto = () => {\n        let nodo = factor();\n        while (actual() === \"*\" || actual() === \"/\") {\n            const operador = consumir();\n            nodo = { tipo: \"binario\", operador, izquierda: nodo, derecha: factor() };\n        }\n        return nodo;\n    };\n    const factor = () => {\n        const token = consumir();\n        if (token === \"-\")\n            return { tipo: \"negativo\", operando: factor() };\n        if (token === \"(\") {\n            const nodo = suma();\n            consumir(\")\");\n            return nodo;\n        }\n        if (/^\\d/.test(token))\n            return { tipo: \"numero\", valor: Number(token) };\n        if (!/^[A-Za-z_]/.test(token)) {\n            throw new ErrorExpresion(`símbolo inesperado \"${token}\" en \"${texto}\"`);\n        }\n        if (actual() !== \"(\")\n            return { tipo: \"identificador\", nombre: token };\n        consumir(\"(\");\n        const argumentos = [];\n        if (actual() !== \")\") {\n            argumentos.push(suma());\n            while (actual() === \",\") {\n                consumir(\",\");\n                argumentos.push(suma());\n            }\n        }\n        consumir(\")\");\n        const aridad = ARIDAD[token];\n        if (!aridad)\n            throw new ErrorExpresion(`la función \"${token}\" no está permitida`);\n        if (argumentos.length < aridad[0] || argumentos.length > aridad[1]) {\n            throw new ErrorExpresion(`número de argumentos inválido para ${token}`);\n        }\n        return { tipo: \"funcion\", nombre: token, argumentos };\n    };\n    const arbol = suma();\n    if (i < tokens.length)\n        throw new ErrorExpresion(`sobra \"${tokens[i]}\" en \"${texto}\"`);\n    return arbol;\n}\nfunction referenciasDeNodo(nodo) {\n    const hechos = new Set();\n    const parametros = new Set();\n    const recorrer = (n) => {\n        if (n.tipo === \"identificador\") {\n            (ES_PARAMETRO.test(n.nombre) ? parametros : hechos).add(n.nombre);\n        }\n        else if (n.tipo === \"binario\") {\n            recorrer(n.izquierda);\n            recorrer(n.derecha);\n        }\n        else if (n.tipo === \"negativo\") {\n            recorrer(n.operando);\n        }\n        else if (n.tipo === \"funcion\") {\n            n.argumentos.forEach(recorrer);\n        }\n    };\n    recorrer(nodo);\n    return { hechos: [...hechos], parametros: [...parametros] };\n}\n/** Hechos (minúscula) y parámetros (MAYÚSCULA) que usa una expresión. */\nfunction referenciasExpresion(texto) {\n    return referenciasDeNodo(analizarExpresion(texto));\n}\nfunction redondear(valor, decimales = 0) {\n    const factor = 10 ** decimales;\n    return Math.round(valor * factor) / factor;\n}\nfunction evaluarNodo(nodo, contexto) {\n    switch (nodo.tipo) {\n        case \"numero\":\n            return nodo.valor;\n        case \"negativo\":\n            return -evaluarNodo(nodo.operando, contexto);\n        case \"identificador\": {\n            if (ES_PARAMETRO.test(nodo.nombre)) {\n                const parametro = contexto.parametros.get(nodo.nombre);\n                if (parametro === undefined) {\n                    throw new ErrorConfiguracion(`el parámetro \"${nodo.nombre}\" no existe`);\n                }\n                return parametro;\n            }\n            const hecho = contexto.hechos.get(nodo.nombre);\n            if (hecho === undefined)\n                throw new HechoFaltante(nodo.nombre);\n            if (typeof hecho !== \"number\") {\n                throw new ErrorConfiguracion(`el hecho \"${nodo.nombre}\" no es numérico (\"${hecho}\")`);\n            }\n            return hecho;\n        }\n        case \"binario\": {\n            const a = evaluarNodo(nodo.izquierda, contexto);\n            const b = evaluarNodo(nodo.derecha, contexto);\n            if (nodo.operador === \"+\")\n                return a + b;\n            if (nodo.operador === \"-\")\n                return a - b;\n            if (nodo.operador === \"*\")\n                return a * b;\n            return a / b;\n        }\n        case \"funcion\": {\n            const valores = nodo.argumentos.map((argumento) => evaluarNodo(argumento, contexto));\n            if (nodo.nombre === \"MAX\")\n                return Math.max(...valores);\n            if (nodo.nombre === \"MIN\")\n                return Math.min(...valores);\n            return redondear(valores[0], valores[1]);\n        }\n    }\n}\nfunction calcular(nodo, contexto) {\n    const resultado = evaluarNodo(nodo, contexto);\n    if (!Number.isFinite(resultado)) {\n        throw new ErrorConfiguracion(\"el cálculo no dio un número (¿división por cero?)\");\n    }\n    return resultado;\n}\n/**\n * Evalúa una expresión suelta. Las claves en MAYÚSCULA se tratan como\n * parámetros y las demás como hechos, igual que dentro de una regla.\n */\nfunction calcularExpresion(texto, valores = {}) {\n    const contexto = { hechos: new Map(), parametros: new Map() };\n    for (const [nombre, valor] of Object.entries(valores)) {\n        if (ES_PARAMETRO.test(nombre))\n            contexto.parametros.set(nombre, valor);\n        else\n            contexto.hechos.set(nombre, valor);\n    }\n    return calcular(analizarExpresion(texto), contexto);\n}\n// ---------------------------------------------------------------------------\n// Plantillas de texto\n// ---------------------------------------------------------------------------\nconst MARCADOR = /\\{([A-Za-z_]\\w*)(?:\\|(\\w+))?\\}/g;\n/** Marcadores `{hecho}`, `{PARAMETRO}` o `{hecho|moneda}` de una plantilla. */\nfunction analizarPlantilla(texto) {\n    const marcadores = [...texto.matchAll(MARCADOR)].map((coincidencia) => ({\n        nombre: coincidencia[1],\n        formato: coincidencia[2],\n    }));\n    return {\n        marcadores,\n        llavesSueltas: /[{}]/.test(texto.replace(MARCADOR, \"\")),\n    };\n}\nfunction formatearNumero(valor, decimales = 3) {\n    const [entero, fraccion = \"\"] = Math.abs(valor).toFixed(decimales).split(\".\");\n    const miles = entero.replace(/\\B(?=(\\d{3})+(?!\\d))/g, \".\");\n    const decimalesUtiles = fraccion.replace(/0+$/, \"\");\n    const signo = valor < 0 && (Number(entero) > 0 || decimalesUtiles) ? \"-\" : \"\";\n    return `${signo}${miles}${decimalesUtiles ? `,${decimalesUtiles}` : \"\"}`;\n}\nconst formatearMoneda = (valor) => `$${formatearNumero(Math.round(valor), 0)}`;\nexports.formatearMoneda = formatearMoneda;\nfunction renderizarPlantilla(texto, contexto) {\n    return texto.replace(MARCADOR, (_marcador, nombre, formato) => {\n        const valor = ES_PARAMETRO.test(nombre)\n            ? contexto.parametros.get(nombre)\n            : contexto.hechos.get(nombre);\n        if (valor === undefined)\n            return \"(sin dato)\";\n        if (typeof valor !== \"number\")\n            return valor;\n        return formato === \"moneda\"\n            ? (0, exports.formatearMoneda)(valor)\n            : formatearNumero(valor);\n    });\n}\nconst OPERADORES = [\n    \"=\",\n    \"!=\",\n    \">\",\n    \">=\",\n    \"<\",\n    \"<=\",\n    \"EN_LISTA\",\n    \"EXISTE\",\n    \"NO_EXISTE\",\n];\nconst NIVELES_IMPACTO = [\"Normal\", \"Advertencia\", \"Crítico\"];\nfunction buscarHecho(hechos, id, contexto) {\n    const definicion = id ? hechos.get(id) : undefined;\n    if (!id || !definicion) {\n        throw new ErrorConfiguracion(`${contexto} usa el hecho \"${id ?? \"\"}\", que no existe`);\n    }\n    return { id, definicion };\n}\nfunction compilarCondicion(fila, hechos) {\n    const contexto = `la condición ${aTexto(fila.ID_Condicion) ?? \"sin id\"}`;\n    const { id: hecho, definicion } = buscarHecho(hechos, aTexto(fila.ID_Hecho), contexto);\n    const operador = aTexto(fila.Operador) ?? \"\";\n    if (!OPERADORES.includes(operador)) {\n        throw new ErrorConfiguracion(`${contexto} usa el operador \"${operador}\", que no existe`);\n    }\n    const base = {\n        hecho,\n        operador: operador,\n        literales: [],\n        expresion: null,\n        referencias: [],\n    };\n    if (operador === \"EXISTE\" || operador === \"NO_EXISTE\")\n        return base;\n    const valor = aTexto(fila.Valor);\n    if (valor === null)\n        throw new ErrorConfiguracion(`${contexto} no tiene valor`);\n    if (aTexto(fila.Tipo_Valor) === \"Expresion\") {\n        const expresion = analizarExpresion(valor);\n        const { hechos: usados, parametros } = referenciasDeNodo(expresion);\n        return { ...base, expresion, referencias: [...usados, ...parametros] };\n    }\n    const partes = operador === \"EN_LISTA\" ? valor.split(exports.SEPARADOR_LISTA) : [valor];\n    const literales = partes.map((parte) => {\n        const literal = normalizar(parte, definicion.tipo);\n        if (literal === null) {\n            throw new ErrorConfiguracion(`${contexto}: \"${parte}\" no es un valor ${definicion.tipo}`);\n        }\n        return literal;\n    });\n    return { ...base, literales };\n}\nfunction compilarAccion(fila, hechos) {\n    const contexto = `la acción ${aTexto(fila.ID_Accion) ?? \"sin id\"}`;\n    const tipo = aTexto(fila.Tipo) ?? \"\";\n    const valor = aTexto(fila.Valor) ?? \"\";\n    if (tipo === \"CONCLUIR\" || tipo === \"RECOMENDAR\" || tipo === \"ALERTAR\") {\n        return { tipo, plantilla: valor };\n    }\n    if (tipo !== \"ASIGNAR\" && tipo !== \"CALCULAR\") {\n        throw new ErrorConfiguracion(`${contexto} tiene el tipo \"${tipo}\", que no existe`);\n    }\n    const { id: destino, definicion } = buscarHecho(hechos, aTexto(fila.ID_Hecho_Destino), contexto);\n    if (definicion.origen !== \"Derivado\") {\n        throw new ErrorConfiguracion(`${contexto} no puede escribir \"${destino}\" (es un hecho de ${definicion.origen})`);\n    }\n    if (tipo === \"CALCULAR\")\n        return { tipo, destino, expresion: analizarExpresion(valor) };\n    const literal = normalizar(valor, definicion.tipo);\n    if (literal === null) {\n        throw new ErrorConfiguracion(`${contexto}: \"${valor}\" no es un valor ${definicion.tipo}`);\n    }\n    return { tipo, destino, valor: literal };\n}\nfunction compilarRegla(id, fila, tablas, hechos) {\n    const prioridad = aNumero(fila.Prioridad);\n    if (prioridad === null)\n        throw new ErrorConfiguracion(\"su prioridad no es numérica\");\n    const nivel = aTexto(fila.Nivel_Impacto) ?? \"\";\n    if (!NIVELES_IMPACTO.includes(nivel)) {\n        throw new ErrorConfiguracion(`su nivel de impacto \"${nivel}\" no existe`);\n    }\n    const deLaRegla = (filas) => filas.filter((f) => aTexto(f.ID_Regla) === id);\n    const condiciones = deLaRegla(tablas.Condiciones_Regla).map((c) => compilarCondicion(c, hechos));\n    const acciones = deLaRegla(tablas.Acciones_Regla)\n        .sort((a, b) => (aNumero(a.Orden) ?? 0) - (aNumero(b.Orden) ?? 0))\n        .map((a) => compilarAccion(a, hechos));\n    if (condiciones.length === 0)\n        throw new ErrorConfiguracion(\"no tiene condiciones\");\n    if (acciones.length === 0)\n        throw new ErrorConfiguracion(\"no tiene acciones\");\n    return {\n        id,\n        nombre: aTexto(fila.Nombre) ?? id,\n        prioridad,\n        nivel: nivel,\n        explicacion: aTexto(fila.Explicacion) ?? \"\",\n        condiciones,\n        acciones,\n    };\n}\n/**\n * Prepara la base de conocimiento para evaluar. Una regla mal configurada\n * (por ejemplo, editada a mano en AppSheet) no detiene al motor: se\n * descarta y queda anotada en `errores`.\n */\nfunction compilarBase(tablas) {\n    const errores = [];\n    const hechos = new Map();\n    for (const fila of tablas.Hechos) {\n        const id = aTexto(fila.ID_Hecho);\n        if (!id)\n            continue;\n        hechos.set(id, {\n            tipo: aTexto(fila.Tipo_Dato) ?? \"Texto\",\n            origen: aTexto(fila.Origen) ?? \"Entrada\",\n            porDefecto: fila.Valor_Por_Defecto,\n        });\n    }\n    const parametros = new Map();\n    for (const fila of tablas.Parametros) {\n        const id = aTexto(fila.ID_Parametro);\n        if (!id)\n            continue;\n        const valor = aNumero(fila.Valor);\n        if (valor === null) {\n            errores.push(`Parámetro ${id}: el valor \"${String(fila.Valor)}\" no es numérico`);\n        }\n        else {\n            parametros.set(id, valor);\n        }\n    }\n    const reglas = [];\n    for (const fila of tablas.Reglas) {\n        const id = aTexto(fila.ID_Regla);\n        if (!id || aSiNo(fila.Activa) === \"NO\")\n            continue;\n        try {\n            reglas.push(compilarRegla(id, fila, tablas, hechos));\n        }\n        catch (error) {\n            errores.push(`Regla ${id}: se ignora porque ${mensajeDe(error)}`);\n        }\n    }\n    reglas.sort((a, b) => a.prioridad - b.prioridad || a.id.localeCompare(b.id));\n    return { hechos, parametros, reglas, errores };\n}\n// ---------------------------------------------------------------------------\n// Inferencia\n// ---------------------------------------------------------------------------\nfunction iguales(a, b) {\n    if (typeof a === \"number\" && typeof b === \"number\")\n        return Math.abs(a - b) < 1e-9;\n    return String(a) === String(b);\n}\nfunction seCumple(condicion, contexto) {\n    const actual = contexto.hechos.get(condicion.hecho);\n    if (condicion.operador === \"EXISTE\")\n        return actual !== undefined;\n    if (condicion.operador === \"NO_EXISTE\")\n        return actual === undefined;\n    if (actual === undefined)\n        return false;\n    let comparados = condicion.literales;\n    if (condicion.expresion) {\n        try {\n            comparados = [calcular(condicion.expresion, contexto)];\n        }\n        catch (error) {\n            // Un hecho todavía sin valor dentro de la expresión = condición falsa,\n            // igual que comparar contra un hecho vacío.\n            if (error instanceof HechoFaltante)\n                return false;\n            throw error;\n        }\n    }\n    const [comparado] = comparados;\n    switch (condicion.operador) {\n        case \"=\":\n            return iguales(actual, comparado);\n        case \"!=\":\n            return !iguales(actual, comparado);\n        case \"EN_LISTA\":\n            return comparados.some((valor) => iguales(actual, valor));\n        default: {\n            if (typeof actual !== \"number\" || typeof comparado !== \"number\")\n                return false;\n            if (condicion.operador === \">\")\n                return actual > comparado;\n            if (condicion.operador === \">=\")\n                return actual >= comparado;\n            if (condicion.operador === \"<\")\n                return actual < comparado;\n            return actual <= comparado;\n        }\n    }\n}\nfunction hechosIniciales(base, entrada, errores) {\n    const hechos = new Map();\n    for (const [id, definicion] of base.hechos) {\n        if (definicion.origen !== \"Entrada\")\n            continue;\n        const crudo = esVacio(entrada[id]) ? definicion.porDefecto : entrada[id];\n        if (esVacio(crudo))\n            continue;\n        const valor = normalizar(crudo, definicion.tipo);\n        if (valor === null) {\n            errores.push(`Hecho ${id}: \"${String(crudo)}\" no es un valor ${definicion.tipo}; se ignora`);\n        }\n        else {\n            hechos.set(id, valor);\n        }\n    }\n    hechos.set(CONTADOR_CRITICAS, 0);\n    hechos.set(CONTADOR_ADVERTENCIAS, 0);\n    return hechos;\n}\nfunction valoresUsados(regla, contexto) {\n    const usados = {};\n    for (const condicion of regla.condiciones) {\n        usados[condicion.hecho] =\n            contexto.hechos.get(condicion.hecho) ?? \"(sin valor)\";\n        for (const nombre of condicion.referencias) {\n            const valor = ES_PARAMETRO.test(nombre)\n                ? contexto.parametros.get(nombre)\n                : contexto.hechos.get(nombre);\n            if (valor !== undefined)\n                usados[nombre] = valor;\n        }\n    }\n    return usados;\n}\n/** Ejecuta las acciones sobre una copia: si una falla, no queda nada a medias. */\nfunction ejecutarAcciones(regla, contexto) {\n    const hechos = new Map(contexto.hechos);\n    const local = { hechos, parametros: contexto.parametros };\n    const textos = { CONCLUIR: [], RECOMENDAR: [], ALERTAR: [] };\n    for (const accion of regla.acciones) {\n        if (accion.tipo === \"ASIGNAR\")\n            hechos.set(accion.destino, accion.valor);\n        else if (accion.tipo === \"CALCULAR\")\n            hechos.set(accion.destino, calcular(accion.expresion, local));\n        else\n            textos[accion.tipo].push(renderizarPlantilla(accion.plantilla, local));\n    }\n    return { hechos, textos };\n}\nfunction siguienteRegla(base, contexto, intentadas, errores) {\n    for (const regla of base.reglas) {\n        if (intentadas.has(regla.id))\n            continue;\n        try {\n            if (regla.condiciones.every((condicion) => seCumple(condicion, contexto)))\n                return regla;\n        }\n        catch (error) {\n            intentadas.add(regla.id);\n            errores.push(`Regla ${regla.id}: no se pudo evaluar porque ${mensajeDe(error)}`);\n        }\n    }\n    return undefined;\n}\n/** Ejecuta la inferencia sobre unos hechos de entrada (nombres de la tabla Hechos). */\nfunction evaluar(base, entrada) {\n    const errores = [...base.errores];\n    let contexto = {\n        hechos: hechosIniciales(base, entrada, errores),\n        parametros: base.parametros,\n    };\n    const intentadas = new Set();\n    const reglasActivadas = [];\n    const conclusiones = [];\n    const recomendaciones = [];\n    const alertas = [];\n    let numCriticas = 0;\n    let numAdvertencias = 0;\n    for (;;) {\n        const regla = siguienteRegla(base, contexto, intentadas, errores);\n        if (!regla)\n            break;\n        intentadas.add(regla.id);\n        const hechosUsados = valoresUsados(regla, contexto);\n        let ejecucion;\n        try {\n            ejecucion = ejecutarAcciones(regla, contexto);\n        }\n        catch (error) {\n            errores.push(`Regla ${regla.id}: no se pudo ejecutar porque ${mensajeDe(error)}`);\n            continue;\n        }\n        contexto = { hechos: ejecucion.hechos, parametros: base.parametros };\n        // La explicación se arma ANTES de sumar el impacto de la propia regla:\n        // \"se activaron 2 reglas críticas\" debe contar las que la dispararon.\n        const explicacion = renderizarPlantilla(regla.explicacion, contexto);\n        if (regla.nivel === \"Crítico\") {\n            numCriticas += 1;\n            contexto.hechos.set(CONTADOR_CRITICAS, numCriticas);\n        }\n        else if (regla.nivel === \"Advertencia\") {\n            numAdvertencias += 1;\n            contexto.hechos.set(CONTADOR_ADVERTENCIAS, numAdvertencias);\n        }\n        conclusiones.push(...ejecucion.textos.CONCLUIR);\n        recomendaciones.push(...ejecucion.textos.RECOMENDAR);\n        alertas.push(...ejecucion.textos.ALERTAR);\n        reglasActivadas.push({\n            orden: reglasActivadas.length + 1,\n            idRegla: regla.id,\n            nombre: regla.nombre,\n            nivelImpacto: regla.nivel,\n            explicacion,\n            hechosUsados,\n        });\n    }\n    const impacto = numCriticas > 0\n        ? \"Crítico\"\n        : numAdvertencias > 0\n            ? \"Advertencia\"\n            : \"Normal\";\n    const estado = contexto.hechos.get(\"estado_sugerido\");\n    return {\n        nivel: NIVEL_RESULTADO_POR_IMPACTO[impacto],\n        estadoSugerido: typeof estado === \"string\" ? estado : null,\n        numCriticas,\n        numAdvertencias,\n        reglasActivadas,\n        conclusiones,\n        recomendaciones,\n        alertas,\n        hechos: Object.fromEntries(contexto.hechos),\n        errores,\n    };\n}\nconst mismoId = (a, b) => aTexto(a) !== null && aTexto(a) === aTexto(b);\n/** Arma los hechos de entrada de una solicitud a partir de las tablas de Sheets. */\nfunction hechosDesdeTablas(idSolicitud, tablas, { ahora, zonaHorariaMinutos = ZONA_HORARIA_COLOMBIA_MINUTOS, }) {\n    const solicitud = tablas.Solicitudes.find((f) => mismoId(f.ID_Solicitud, idSolicitud));\n    if (!solicitud)\n        throw new Error(`La solicitud ${idSolicitud} no existe`);\n    const solicitante = tablas.Solicitantes.find((f) => mismoId(f.ID_Solicitante, solicitud.ID_Solicitante));\n    const actividad = tablas.Actividades_Economicas.find((f) => mismoId(f.ID_Actividad, solicitud.ID_Actividad));\n    const clase = actividad\n        ? tablas.Clases_Riesgo.find((f) => mismoId(f.ID_Clase, actividad.ID_Clase))\n        : undefined;\n    const tipo = aTexto(solicitud.Tipo_Vinculacion);\n    let porcentajeDocumentos;\n    if (tipo) {\n        const requeridos = tablas.Documentos_Requeridos.filter((documento) => aSiNo(documento.Obligatorio) === \"SI\" &&\n            String(documento.Aplica_A ?? \"\")\n                .split(\",\")\n                .map((valor) => valor.trim())\n                .includes(tipo));\n        const recibidos = requeridos.filter((requerido) => tablas.Documentos_Solicitud.some((entregado) => mismoId(entregado.ID_Solicitud, idSolicitud) &&\n            mismoId(entregado.ID_Documento, requerido.ID_Documento) &&\n            aTexto(entregado.Estado) === \"Recibido\"));\n        porcentajeDocumentos =\n            requeridos.length === 0\n                ? 100\n                : redondear((recibidos.length / requeridos.length) * 100, 2);\n    }\n    const ultimaGestion = aHoraDePared(solicitud.Fecha_Ultima_Gestion, zonaHorariaMinutos);\n    const momento = esFecha(ahora)\n        ? ahora.getTime() + zonaHorariaMinutos * 60000\n        : aHoraDePared(ahora, zonaHorariaMinutos);\n    const horasSinGestion = ultimaGestion === null || momento === null\n        ? undefined\n        : Math.max(0, redondear((momento - ultimaGestion) / MS_POR_HORA, 1));\n    return {\n        id_solicitud: solicitud.ID_Solicitud,\n        tipo_vinculacion: solicitud.Tipo_Vinculacion,\n        ingreso_mensual: solicitud.Ingreso_Mensual,\n        costos_deducibles: solicitud.Costos_Deducibles,\n        duracion_contrato_dias: solicitud.Duracion_Contrato_Dias,\n        clase_riesgo: actividad?.ID_Clase,\n        tarifa_arl: clase?.Tarifa_ARL_Pct,\n        numero_trabajadores: solicitud.Numero_Trabajadores,\n        autoriza_datos: solicitante?.Autoriza_Datos,\n        plan_solicitado: solicitud.ID_Plan,\n        porcentaje_documentos: porcentajeDocumentos,\n        horas_sin_gestion: horasSinGestion,\n    };\n}\n/** Evalúa una solicitud leyendo todo lo necesario de las tablas. */\nfunction evaluarSolicitud(idSolicitud, tablas, opciones) {\n    const entrada = hechosDesdeTablas(idSolicitud, tablas, opciones);\n    const resultado = evaluar(compilarBase(tablas), entrada);\n    if (entrada.horas_sin_gestion === undefined) {\n        // Fecha_Ultima_Gestion es obligatoria: si no se pudo leer, su formato no\n        // es reconocible y el escalamiento por tiempo no se evaluó. Se avisa en\n        // vez de fallar en silencio.\n        resultado.errores.push(`Solicitud ${idSolicitud}: no se pudo leer Fecha_Ultima_Gestion; el escalamiento por tiempo no se evaluó`);\n    }\n    return resultado;\n}\n/** Filas listas para agregar a las tablas Evaluaciones y Reglas_Activadas. */\nfunction filasResultado(resultado, registro) {\n    const dinero = (id) => {\n        const valor = resultado.hechos[id];\n        return typeof valor === \"number\" ? Math.round(valor) : null;\n    };\n    const lineas = (textos) => textos.length > 0 ? textos.join(\"\\n\") : null;\n    const evaluacion = {\n        ID_Evaluacion: registro.idEvaluacion,\n        ID_Solicitud: aTexto(resultado.hechos.id_solicitud),\n        Fecha: registro.fecha,\n        Origen: registro.origen,\n        Nivel_Resultado: resultado.nivel,\n        Estado_Sugerido: resultado.estadoSugerido,\n        Num_Reglas_Activadas: resultado.reglasActivadas.length,\n        Num_Criticas: resultado.numCriticas,\n        Num_Advertencias: resultado.numAdvertencias,\n        IBC: dinero(\"ibc\"),\n        Aporte_Salud: dinero(\"aporte_salud\"),\n        Aporte_Pension: dinero(\"aporte_pension\"),\n        Aporte_ARL: dinero(\"aporte_arl\"),\n        Total_Aportes_Cliente: dinero(\"total_aportes_cliente\"),\n        Conclusiones: lineas(resultado.conclusiones),\n        Recomendaciones: lineas(resultado.recomendaciones),\n        Explicacion_IA: null,\n        Hechos_Finales_JSON: JSON.stringify(resultado.hechos),\n        URL_PDF: null,\n    };\n    const reglasActivadas = resultado.reglasActivadas.map((activada) => ({\n        ID_Regla_Activada: `${registro.idEvaluacion}-${String(activada.orden).padStart(2, \"0\")}`,\n        ID_Evaluacion: registro.idEvaluacion,\n        ID_Regla: activada.idRegla,\n        Orden_Disparo: activada.orden,\n        Nivel_Impacto: activada.nivelImpacto,\n        Explicacion_Generada: activada.explicacion,\n        Hechos_Usados: Object.entries(activada.hechosUsados)\n            .map(([nombre, valor]) => `${nombre} = ${typeof valor === \"number\" ? formatearNumero(valor) : valor}`)\n            .join(\"; \"),\n    }));\n    return { evaluacion, reglasActivadas };\n}\n/** Explicación completa en texto plano (Telegram, PDF, prompt del agente IA). */\nfunction resumenTexto(resultado) {\n    const seccion = (titulo, items) => items.length > 0\n        ? [\"\", `${titulo}:`, ...items.map((item) => `- ${item}`)]\n        : [];\n    return [\n        `Clasificación: ${resultado.nivel}`,\n        `Estado sugerido: ${resultado.estadoSugerido ?? \"sin definir\"}`,\n        \"\",\n        `Reglas activadas (${resultado.reglasActivadas.length}):`,\n        ...resultado.reglasActivadas.map((a) => `${a.orden}. ${a.idRegla} · ${a.nombre} [${a.nivelImpacto}]: ${a.explicacion}`),\n        ...seccion(\"Conclusiones\", resultado.conclusiones),\n        ...seccion(\"Recomendaciones\", resultado.recomendaciones),\n        ...seccion(\"Alertas\", resultado.alertas),\n    ].join(\"\\n\");\n}\nreturn exports;\n})();\n\nconst leer = (nombre) => $(nombre).all().map((item) => item.json);\nconst tablas = {\n  Hechos: leer(\"Hechos\"),\n  Parametros: leer(\"Parametros\"),\n  Reglas: leer(\"Reglas\"),\n  Condiciones_Regla: leer(\"Condiciones_Regla\"),\n  Acciones_Regla: leer(\"Acciones_Regla\"),\n  Solicitudes: leer(\"Solicitudes\"),\n  Solicitantes: leer(\"Solicitantes\"),\n  Actividades_Economicas: leer(\"Actividades_Economicas\"),\n  Clases_Riesgo: leer(\"Clases_Riesgo\"),\n  Documentos_Solicitud: leer(\"Documentos_Solicitud\"),\n  Documentos_Requeridos: leer(\"Documentos_Requeridos\"),\n  Evaluaciones: leer(\"Evaluaciones\"),\n};\n\nconst cuerpo = $(\"Webhook\").first().json.body || {};\nconst idSolicitud = String(cuerpo.idSolicitud || \"\").trim();\nif (!idSolicitud) throw new Error(\"Falta idSolicitud en el cuerpo de la petición\");\n\nconst ahora = new Date();\nconst resultado = SolutaPLUSMotor.evaluarSolicitud(idSolicitud, tablas, { ahora });\n\n// Siguiente ID de evaluación: EVA-0001, EVA-0002, ...\nconst numeros = tablas.Evaluaciones\n  .map((fila) => Number(String(fila.ID_Evaluacion || \"\").replace(/\\D/g, \"\")))\n  .filter((n) => Number.isFinite(n));\nconst idEvaluacion = \"EVA-\" + String(Math.max(0, ...numeros) + 1).padStart(4, \"0\");\n\nconst { evaluacion, reglasActivadas } = SolutaPLUSMotor.filasResultado(resultado, {\n  idEvaluacion,\n  fecha: ahora.toISOString(),\n  origen: String(cuerpo.origen || \"n8n\"),\n});\n\nconst solicitud = tablas.Solicitudes.find((f) => String(f.ID_Solicitud) === idSolicitud);\nconst estadoActual = String(solicitud.Estado || \"\");\nconst cambiaEstado =\n  [\"Nueva\",\"En evaluación\"].includes(estadoActual) &&\n  resultado.estadoSugerido &&\n  resultado.estadoSugerido !== estadoActual;\nconst estadoNuevo = cambiaEstado ? resultado.estadoSugerido : estadoActual;\n\nreturn [\n  {\n    json: {\n      idSolicitud,\n      idEvaluacion,\n      evaluacion,\n      reglasActivadas,\n      actualizacion: {\n        ID_Solicitud: idSolicitud,\n        Estado: estadoNuevo,\n        Nivel_Resultado: resultado.nivel,\n      },\n      historial: cambiaEstado\n        ? {\n            ID_Historial: \"HIS-\" + Date.now(),\n            ID_Solicitud: idSolicitud,\n            Estado_Anterior: estadoActual,\n            Estado_Nuevo: estadoNuevo,\n            Usuario: \"\",\n            Fecha: ahora.toISOString(),\n            Comentario: \"Evaluación automática \" + idEvaluacion,\n          }\n        : null,\n      resumen: SolutaPLUSMotor.resumenTexto(resultado),\n      errores: resultado.errores,\n    },\n  },\n];"
+      }
+    },
+    {
+      "name": "Fila evaluación",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3120,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{ json: $(\"Motor\").first().json.evaluacion }];"
+      }
+    },
+    {
+      "name": "Guardar Evaluaciones",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3340,
+        300
+      ],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Evaluaciones"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": null
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Filas reglas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3560,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return $(\"Motor\").first().json.reglasActivadas.map((json) => ({ json }));"
+      }
+    },
+    {
+      "name": "Guardar Reglas_Activadas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3780,
+        300
+      ],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Reglas_Activadas"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": null
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Fila solicitud",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4000,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{ json: $(\"Motor\").first().json.actualizacion }];"
+      }
+    },
+    {
+      "name": "Actualizar Solicitudes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        4220,
+        300
+      ],
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Solicitudes"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": null,
+          "matchingColumns": [
+            "ID_Solicitud"
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Fila historial",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4440,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const h = $(\"Motor\").first().json.historial;\nreturn h ? [{ json: h }] : [];"
+      }
+    },
+    {
+      "name": "Guardar Historial_Estados",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        4660,
+        300
+      ],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1O2zZNprQexe7myH7oqBAufvWNw9ze0LV4Ke2EGD7G0U"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Historial_Estados"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": null
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets (SolutaPLUS)"
+        }
+      }
+    },
+    {
+      "name": "Responder",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        4880,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, idEvaluacion: $(\"Motor\").first().json.idEvaluacion, nivel: $(\"Motor\").first().json.evaluacion.Nivel_Resultado, resumen: $(\"Motor\").first().json.resumen, errores: $(\"Motor\").first().json.errores } }}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Hechos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hechos": {
+      "main": [
+        [
+          {
+            "node": "Parametros",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parametros": {
+      "main": [
+        [
+          {
+            "node": "Reglas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reglas": {
+      "main": [
+        [
+          {
+            "node": "Condiciones_Regla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Condiciones_Regla": {
+      "main": [
+        [
+          {
+            "node": "Acciones_Regla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Acciones_Regla": {
+      "main": [
+        [
+          {
+            "node": "Solicitudes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Solicitudes": {
+      "main": [
+        [
+          {
+            "node": "Solicitantes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Solicitantes": {
+      "main": [
+        [
+          {
+            "node": "Actividades_Economicas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actividades_Economicas": {
+      "main": [
+        [
+          {
+            "node": "Clases_Riesgo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clases_Riesgo": {
+      "main": [
+        [
+          {
+            "node": "Documentos_Solicitud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Documentos_Solicitud": {
+      "main": [
+        [
+          {
+            "node": "Documentos_Requeridos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Documentos_Requeridos": {
+      "main": [
+        [
+          {
+            "node": "Evaluaciones",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluaciones": {
+      "main": [
+        [
+          {
+            "node": "Motor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Motor": {
+      "main": [
+        [
+          {
+            "node": "Fila evaluación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fila evaluación": {
+      "main": [
+        [
+          {
+            "node": "Guardar Evaluaciones",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Evaluaciones": {
+      "main": [
+        [
+          {
+            "node": "Filas reglas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filas reglas": {
+      "main": [
+        [
+          {
+            "node": "Guardar Reglas_Activadas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Reglas_Activadas": {
+      "main": [
+        [
+          {
+            "node": "Fila solicitud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fila solicitud": {
+      "main": [
+        [
+          {
+            "node": "Actualizar Solicitudes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar Solicitudes": {
+      "main": [
+        [
+          {
+            "node": "Fila historial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fila historial": {
+      "main": [
+        [
+          {
+            "node": "Guardar Historial_Estados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Historial_Estados": {
+      "main": [
+        [
+          {
+            "node": "Responder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
