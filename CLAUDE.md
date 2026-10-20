@@ -662,6 +662,37 @@ valida (no son del sistema experto).
   su promedio (672.431) coincide con la tarjeta «$672 mil». Pendiente: armar
   el documento de evidencias.
 
+- **Tarjetas realineadas al enunciado (2026-10-20, tarde):** `Export` tiene aux
+  `ValorViables` / `ValorPendientes` (suma de `Total_Aportes_Cliente` de las
+  filtradas Viables / no Viables). Las 4 tarjetas ahora son: Total aportes
+  (Viables), Cantidad de viables, Valor pendientes, Ticket promedio de Viables
+  (`TicketPromedio = ValorViables / CantViables`). Gráfico del dashboard:
+  vista «Solicitudes por tipo de vinculación» (COUNT de `Tipo_Vinculacion`).
+  Verificado: Viable+Aprobada → $2.017.292 / 4 / $0 / $504 mil; Requiere
+  Revisión+Aprobada → $0 / 0 / $508.148 / $0. Adaptación al enunciado:
+  Solicitudes = Ventas, Viable = pagada, no Viable = pendiente, Tipo de
+  vinculación = método de pago. El Excel ahora trae también Cliente (columna virtual `Solicitudes.Cliente` = `[ID_Solicitante].[Nombre_Completo]`), Servicio y Plan (plantilla de Drive, `<<End>>` en la columna K); verificado el 2026-10-20. Cantidad/Precio no tienen equivalente. **Filtro por tipo de vinculación** (2026-10-20): columna nueva `Tipo Vinculacion` (Enum: Contratista, Cuenta propia, Empleador) añadida a la pestaña Export de la Hoja (G1) y a `FiltroSolicitudes`; en la vista Reporte está en Quick edit columns y en Column order. Probado: Contratista → 3 viables / $672 mil.
+
+- **Enlaces a PDF/Excel vía Apps Script (2026-10-20):** «Abrir PDF» y la acción
+  del Excel ya no usan la búsqueda de Drive (abría el Drive de quien pulsa).
+  Apuntan a una aplicación web de Apps Script (`sistema-experto/apps-script/abrir-archivo.gs`,
+  cuenta dueña, «ejecutar como yo», acceso «cualquier usuario con cuenta de Google»)
+  con `?nombre=<archivo exacto>`: busca el archivo por nombre y muestra un enlace
+  «Descargar archivo» (`drive.google.com/uc?export=download&id=…`): baja directo a la carpeta Descargas del navegador, sin abrir Drive. El primer clic a veces solo da foco al marco: pulsar de nuevo (una sola descarga por clic efectivo). La URL `/exec` está en las dos acciones (no es
+  credencial). Probado: Excel y PDF descargan bien a ~/Descargas. Trampa: en plantillas Excel editadas en Hojas, `type` con `\t` mete el tabulador dentro de la celda; usar la tecla `Tab`. **Quien lo abra necesita
+  acceso Lector a las carpetas `Informes` y `Reportes`** (las carpetas `Informes` y `Exportar` ya están compartidas como Editor con Brandon y Brayan). Barra móvil: solo 3 pestañas primarias (Solicitudes,
+  Dashboard de solicitudes, Tablero); el resto está en el menú.
+
+- **«Abrir PDF» directo (2026-10-20, noche):** `sincronizarEnlaces()` (mismo proyecto de
+  Apps Script, disparador de 1 minuto, autorizado con Drive + Hojas) escribe en
+  `Solicitudes.URL_PDF` el enlace `drive.google.com/uc?export=download&id=…` del
+  informe más reciente; el bot sigue poniendo la búsqueda de Drive y el disparador la
+  reemplaza en ≤1 min. La acción «Abrir PDF» usa `URL_PDF` si contiene
+  `export=download` y, si no, el script `?nombre=`. Probado en PC: un clic baja el PDF
+  a Descargas (Brave pide permitir la descarga la primera vez; hasta aceptarla el
+  temporal queda sin terminar). **Celular sin probar** (la app de Drive del teléfono
+  puede interceptar el enlace). El Excel sigue por el script `?nombre=`.
+
 #### Auditoría del Módulo 9 (2026-09-22)
 
 Se comparó la app contra `esquema.ts` de forma automática (un script
