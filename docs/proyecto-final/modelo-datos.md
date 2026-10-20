@@ -118,6 +118,8 @@ erDiagram
     DateTime Fecha_Creacion
     DateTime Fecha_Ultima_Gestion
     Signature Firma_Solicitante
+    YesNo Generar_PDF
+    Url URL_PDF
   }
   Documentos_Solicitud {
     Text ID_Doc_Solicitud PK
@@ -330,7 +332,7 @@ Documentos que se exigen según el tipo de vinculación (política interna de So
 
 ### Solicitantes
 
-Personas o empresas que piden afiliación (llegan por la landing, AppSheet o Telegram). _Filas iniciales: 7._
+Personas o empresas que piden afiliación (llegan por la landing, AppSheet o Telegram). _Filas iniciales: 15._
 
 | Columna | Tipo en AppSheet | Obligatoria | Descripción |
 |---|---|---|---|
@@ -348,7 +350,7 @@ Personas o empresas que piden afiliación (llegan por la landing, AppSheet o Tel
 
 ### Solicitudes
 
-Solicitud de afiliación. Sus columnas son los hechos de entrada del motor de decisión. _Filas iniciales: 7._
+Solicitud de afiliación. Sus columnas son los hechos de entrada del motor de decisión. _Filas iniciales: 15._
 
 | Columna | Tipo en AppSheet | Obligatoria | Descripción |
 |---|---|---|---|
@@ -369,10 +371,12 @@ Solicitud de afiliación. Sus columnas son los hechos de entrada del motor de de
 | Fecha_Creacion | DateTime | Sí | Fecha de radicación. |
 | Fecha_Ultima_Gestion | DateTime | Sí | Última vez que un usuario la gestionó (base del escalamiento). |
 | Firma_Solicitante | Signature | No | Firma capturada en AppSheet; se incluye en el PDF. |
+| Generar_PDF | Yes/No | No | Disparador del bot de AppSheet que genera el informe PDF; la acción «Generar PDF» alterna su valor. |
+| URL_PDF | Url | No | Enlace al último informe PDF (reservado: el bot aún no lo rellena). |
 
 ### Documentos_Solicitud
 
-Documentos entregados por cada solicitud. De aquí sale el hecho porcentaje_documentos. _Filas iniciales: 27._
+Documentos entregados por cada solicitud. De aquí sale el hecho porcentaje_documentos. _Filas iniciales: 57._
 
 | Columna | Tipo en AppSheet | Obligatoria | Descripción |
 |---|---|---|---|
@@ -385,7 +389,7 @@ Documentos entregados por cada solicitud. De aquí sale el hecho porcentaje_docu
 
 ### Historial_Estados
 
-Trazabilidad de cada cambio de estado de una solicitud. _Filas iniciales: 14._
+Trazabilidad de cada cambio de estado de una solicitud. _Filas iniciales: 30._
 
 | Columna | Tipo en AppSheet | Obligatoria | Descripción |
 |---|---|---|---|
@@ -474,7 +478,7 @@ Parte ENTONCES de cada regla, ejecutada en orden. _Filas iniciales: 51._
 
 ### Evaluaciones
 
-Resultado de cada ejecución del motor sobre una solicitud (lo escribe n8n). _Filas iniciales: 7._
+Resultado de cada ejecución del motor sobre una solicitud (lo escribe n8n). _Filas iniciales: 15._
 
 | Columna | Tipo en AppSheet | Obligatoria | Descripción |
 |---|---|---|---|
@@ -500,7 +504,7 @@ Resultado de cada ejecución del motor sobre una solicitud (lo escribe n8n). _Fi
 
 ### Reglas_Activadas
 
-Explicación trazable: qué reglas se activaron, en qué orden y por qué. _Filas iniciales: 45._
+Explicación trazable: qué reglas se activaron, en qué orden y por qué. _Filas iniciales: 95._
 
 | Columna | Tipo en AppSheet | Obligatoria | Descripción |
 |---|---|---|---|

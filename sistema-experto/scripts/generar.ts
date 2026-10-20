@@ -5,6 +5,7 @@
 //   existe `sistema-experto/usuarios.local.json`, las cuentas reales del
 //   equipo (por eso el .xlsx no se versiona);
 // - sistema-experto/salida/motor-n8n.js (el motor para el nodo Code de n8n);
+// - sistema-experto/salida/n8n/*.json (flujos de n8n listos para importar);
 // - docs/proyecto-final/modelo-datos.md, catalogo-reglas.md y
 //   evaluaciones-demo.md (sin datos personales).
 //
@@ -30,6 +31,7 @@ import {
   generarEvaluacionesDemoMd,
   generarModeloDatosMd,
 } from "./documentacion";
+import { flujoEvaluacion, flujoLanding } from "./flujos-n8n";
 import { compilarMotorParaN8n } from "./motor-n8n";
 import { conEvaluacionesDemo, conUsuariosLocales } from "./preparar-datos";
 
@@ -72,8 +74,6 @@ async function escribirXlsx(ruta: string, datos: BaseDatos): Promise<void> {
         pattern: "solid",
         fgColor: { argb: "FF1F4E79" },
       };
-      const detalle = columna.ref ? ` → ${columna.ref}` : "";
-      cabecera.note = `${columna.tipo}${detalle}${columna.clave ? " (clave)" : ""}: ${columna.descripcion}`;
     });
 
     for (const fila of datos[tabla.nombre]) {
@@ -123,8 +123,18 @@ async function main(): Promise<void> {
   }
 
   // Se genera todo en memoria primero: si algo falla, no queda nada a medias.
+  const motorJs = compilarMotorParaN8n(RAIZ);
+  const json = (flujo: object) => `${JSON.stringify(flujo, null, 2)}\n`;
   const archivos: [string, string][] = [
-    [path.join(CARPETA_SALIDA, "motor-n8n.js"), compilarMotorParaN8n(RAIZ)],
+    [path.join(CARPETA_SALIDA, "motor-n8n.js"), motorJs],
+    [
+      path.join(CARPETA_SALIDA, "n8n", "evaluar-solicitud.json"),
+      json(flujoEvaluacion(motorJs)),
+    ],
+    [
+      path.join(CARPETA_SALIDA, "n8n", "landing-a-sheets.json"),
+      json(flujoLanding()),
+    ],
     [
       path.join(CARPETA_DOCS, "modelo-datos.md"),
       generarModeloDatosMd(datosDemo),
@@ -136,7 +146,7 @@ async function main(): Promise<void> {
     ],
   ];
 
-  await mkdir(CARPETA_SALIDA, { recursive: true });
+  await mkdir(path.join(CARPETA_SALIDA, "n8n"), { recursive: true });
   await mkdir(CARPETA_DOCS, { recursive: true });
   const rutaXlsx = path.join(CARPETA_SALIDA, "SolutaPLUS_BaseDatos.xlsx");
   await escribirXlsx(rutaXlsx, datos);
