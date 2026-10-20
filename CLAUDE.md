@@ -4,6 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # SolutaPLUS — Guía operativa para Claude Code
 
+> **Mapa rápido:** el repo tiene dos mitades. (1) La landing + panel admin
+> Next.js heredada del original (`app/`, `server/`, `features/`, `lib/`,
+> Prisma). (2) El **sistema experto** del proyecto final
+> (`sistema-experto/`: `base-conocimiento/` → `motor/` → `scripts/` →
+> `salida/`), que es el foco actual; AppSheet/n8n/Telegram viven fuera del
+> repo y solo se documentan aquí y en `docs/proyecto-final/`.
+
 > **Contexto de esta carpeta (leer primero):** esta carpeta es una **copia**
 > del proyecto original `landinsalud` (marca "IntegraSocial"), hecha para
 > el proyecto de la universidad, que además integrará cosas con AppSheet.
@@ -549,6 +556,111 @@ documentado en la segunda mitad de esta lista, tal cual quedó.)
   de Brave se vuelve a encoger sola a ~500 px (pedir que la maximicen).
   Las fechas de la app web son campos por segmentos: clic en el día y teclear
   `ddmmaaaa` seguido.
+
+#### Cambios y auditoría funcional del 2026-10-20 (nota: 66/100)
+
+Auditoría hecha en la app real (no leyendo configuración). Funciona y se
+verificó: "Generar PDF" crea `Informe_SOL-0001.pdf` (2 págs., datos reales) en
+`Informes`; "Abrir PDF" y la acción del Excel abren Drive en **pestaña
+nueva** (acción "External: go to a website" con "Launch External" activo);
+el Reporte filtra bien (Viable + 2026 → SOL-0001 y SOL-0004); el Tablero
+cuadra (2/4/1 = 7). Tests: 100 pasan; fallan 2 suites de la landing
+(`lead-service`, `quotation-service`) porque el `.env` de esta copia no
+valida (no son del sistema experto).
+
+- **El bot del PDF había perdido la plantilla** (aviso "must have a
+  template specified"; la app quedaba "not runnable"). Se restauró con el
+  teclado (ver truco del selector de Drive arriba) y se activó "Disable
+  Timestamp" para que el nombre sea `Informe_<ID>.pdf`.
+- **"Abrir PDF" estaba como "External: open a file" con expresión vacía**;
+  ahora es "go to a website": `"https://drive.google.com/drive/search?q="
+  & ENCODEURL("Informe_" & [ID_Solicitud] & ".pdf")`.
+- La acción del sistema "Open File (URL_PDF)" (rota: *URI invalid
+  signature*) quedó en posición **Hide**.
+- **Tablero:** "Solicitudes por nivel" pasó a *aggregate piechart*
+  (COUNT sobre `Nivel_Resultado`, colores verde/naranja/rojo en el orden
+  Viable, Requiere revisión, Crítica). Un `piechart` simple solo admite
+  columnas numéricas; el histograma de una serie sale de un solo color.
+- **Panel SVG:** columna virtual `Usuarios.Panel_SVG` (tipo Image) que
+  dibuja barras por nivel con un data URI
+  (`data:image/svg+xml;utf8,` + `ENCODEURL`). Vista "Panel inteligente"
+  (deck, imagen principal `Panel_SVG`) sobre el slice `Mi_Usuario`
+  (`[Correo] = USEREMAIL()`), posición *later*. La miniatura es pequeña.
+  **Sin IA todavía:** el "AI task" de los bots está deshabilitado en el
+  plan y `Explicacion_IA` depende de n8n + Gemini (Módulos 10-11).
+- **Trampas del editor (aprendidas hoy, no repetir):**
+  - El analizador de expresiones de AppSheet **falla con una cadena que
+    termina en `'"` o empieza en `"'`**. En un SVG, poner un espacio junto
+    al borde (`y=' ", valor, " ' width=...`; los espacios en atributos
+    numéricos de SVG son válidos).
+  - Escribir con `type` en el Expression Assistant **autocierra las comillas
+    simples** y rompe la expresión. Insertar el texto entero con
+    `document.execCommand('insertText')` sobre `.cm-content` (CodeMirror 6)
+    y forzar la validación con una tecla real (`space` + `BackSpace`): el
+    ícono de validez **no se actualiza** con inserciones por script. Guardar
+    solo con el ✓ verde, o la app queda "not runnable".
+  - Un `javascript_tool` que busque un `select` por texto puede tocar la
+    columna equivocada (cambió `_RowNumber` a Image). Usar `find` +
+    `form_input` sobre el combobox exacto.
+  - Los selectores de tabla/columna de las vistas son **MUI Select**: abrirlos
+    con un `mousedown` por script y hacer `click()` sobre el `li` de
+    `ul[role=listbox]`. Abrirlos con el ratón congela `screenshot` (la página
+    sigue respondiendo a JS).
+  - Las vistas nuevas se crean con tipo `card` sobre `Roles`; hay que cambiar
+    tabla y tipo. Una vista se ve en la app real solo tras recargarla con
+    `?refresh=1`.
+- `scripts/generar.ts` ya **no escribe notas en la cabecera** del `.xlsx`
+  (eran la basura "[Threaded comment]…" de las Description). La Hoja de
+  Google actual sigue teniéndolas: limpiar a mano o regenerar solo si no
+  hay datos reales que perder.
+- **Semilla ampliada a 15 solicitudes (2026-10-20)**: SOL-0008..0015 en
+  `semilla.ts`, con `esperado` calculado por el motor (no forzado). Ojo:
+  **SOL-0012 es Crítica pero queda «Pendiente documentos»**, no «Bloqueada»,
+  porque R25 exige 2 críticas y solo tiene R02. Se cargaron a la Hoja real
+  (6 pestañas) el 2026-10-20 desde Chrome: ir a la pestaña con el Name Box
+  (`Hoja!A1`), `ctrl+Down`, `Down` y despachar un `ClipboardEvent('paste')`
+  sintético con un `DataTransfer` de texto TSV sobre `document.activeElement`
+  (Sheets lo acepta). Los TSV quedan en `sistema-experto/salida/ampliacion/`
+  (sin versionar los correos reales: `Asesor` sale de ejemplo y se copia de la
+  celda E2). `ID_Historial` continúa desde HIS-0015. Un `fetch` a un servidor
+  local desde la Hoja se cuelga: no usarlo.
+- **4 tarjetas SVG dinámicas en `Export`** (requisito del video «Dashboard de
+  ventas con indicadores SVG»): auxiliares `CantSolicitudes`, `CantViables`,
+  `CantAtencion`, `TicketPromedio` (calculadas sobre `FiltroSolicitudes`) y
+  columnas Image `Tarjeta_Total`, `Tarjeta_Viables`, `Tarjeta_Atencion`,
+  `Tarjeta_Ticket`; `Panel_Tarjetas` las compone en una cuadrícula 2×2 y es la
+  imagen principal de la vista «Reporte» (deck, Image style «Fit»). Los
+  valores solo se refrescan tras **sincronizar** (si no, sale un ícono de
+  imagen rota unos segundos). Filtros probados: Viable+Aprobada → 4/4/0/$672
+  mil; Requiere Revisión+Aprobada → 1/0/1/$508 mil. La fila única de `Export`
+  quedó con Nivel «Requiere Revisión» y Estado «Aprobada».
+- **Trampas de expresiones (más)**: `TEXT(número, "#,##0")` NO existe (TEXT
+  solo formatea fechas); `ROUND` acepta un solo argumento; la comparación `=`
+  entre textos no distingue mayúsculas. El diálogo de columna con error
+  muestra banners que mueven el campo de fórmula: hacer captura antes de
+  clicar. El botón Save del Expression Assistant se puede pulsar por texto
+  con JS (más fiable que coordenadas).
+- **Dashboard integrado (2026-10-20)**: vista `Dashboard de solicitudes`
+  (dashboard, posición middle) = `Reporte` (filtros + tarjetas + tabla
+  `FiltroSolicitudes` + botones de PDF/Excel) + `Solicitudes filtradas por
+  nivel` (aggregate piechart COUNT de `Nivel_Resultado`, verde/naranja/rojo)
+  sobre el slice `Solicitudes_Export` (`IN([ID_Solicitud],
+  LOOKUP(ANY(Export[id_export]), "Export", "id_export",
+  "FiltroSolicitudes"))`). Verificado en la app real: filtros, tarjetas,
+  tabla y gráfico coinciden. Los gráficos del Tablero siguen usando la tabla
+  `Filtros` (otro filtro, por usuario). **Excel verificado (2026-10-20)**: es
+  un `.xlsx` real; la plantilla de Drive (DocId del paso del bot «Generar
+  reporte Excel») ahora tiene la columna H `Total_Aportes_Mensual` =
+  `<<[Total_Aportes_Mensual]>><<End>>`, columna virtual de `Solicitudes`
+  (`SUM(SELECT(Evaluaciones[Total_Aportes_Cliente], [ID_Solicitud] =
+  [_THISROW].[ID_Solicitud]))`). **En las plantillas solo las columnas
+  simples toman la fila actual**: `LOOKUP(...)` y `SUM([Related …])` dentro
+  del bloque Start/End repetían el valor de la primera fila (o fallaban).
+  Editar la plantilla en Hojas autoguarda con retraso: esperar ~1 min antes
+  de regenerar o el bot usa la versión vieja (el Monitor → Runs muestra el
+  error). Con Viable+Aprobada el Excel da 580.440 / 0 / 508.148 / 928.704 y
+  su promedio (672.431) coincide con la tarjeta «$672 mil». Pendiente: armar
+  el documento de evidencias.
 
 #### Auditoría del Módulo 9 (2026-09-22)
 
@@ -1265,7 +1377,7 @@ el usuario pida cambiarlas:
 
 ## Notas operativas del entorno (para no perder tiempo repitiendo errores ya resueltos)
 
-- **Windows + Git Bash**, proyecto dentro de Google Drive (`G:/Mi unidad/.MastaDev/...`): a veces
+- **Entorno actual: Linux** (`/home/mastadev/Documentos/MastaDev/SolutaPLUS`). Las notas de abajo sobre Windows/Git Bash/Google Drive (`G:/Mi unidad/...`) vienen del original; si se trabaja en esa máquina: a veces
   la sincronización bloquea archivos momentáneamente (`EBUSY`) justo después de
   escribir — reintentar tras `rm -rf .next` suele resolverlo.
 - **`curl.exe` en Git Bash corrompe tildes/ñ** al pasar argumentos con
@@ -1321,7 +1433,14 @@ el usuario pida cambiarlas:
 
 ## Próximo paso
 
-**Módulo 10 — Workflows en n8n.** El Módulo 9 (AppSheet) quedó hecho y
+**Módulo 10 — Workflows en n8n (en curso desde 2026-10-20).** Hechos y probados
+localmente los dos flujos importables (`sistema-experto/salida/n8n/`,
+generados por `scripts/flujos-n8n.ts`, doc en `docs/proyecto-final/n8n.md`,
+tests en `tests/unit/flujos-n8n.test.ts`). Falta: importarlos en n8n Cloud
+(cuenta del usuario), enlazar credenciales, probar con una ejecución real y
+cablear la landing al webhook.
+
+**Módulo 10 original — Workflows en n8n.** El Módulo 9 (AppSheet) quedó hecho y
 auditado el 2026-09-22 y ampliado y re-auditado el 2026-09-27 (permisos,
 Tablero de 4 indicadores, informe PDF): detalle en su sección al inicio
 de este archivo.
@@ -1357,10 +1476,9 @@ Antes de arrancar (o en paralelo), lo que quedó abierto:
 - Ensayo de la demo (2026-09-28): el Tablero y los números del guion
   coinciden; la app abre en la última vista usada, así que antes de
   presentar hay que abrirla en **Tablero**.
-- Las Description de las columnas salen con basura («[Threaded comment]
-  Your version of Excel…») heredada de las notas del `.xlsx`. Quitar
-  `cabecera.note` de `sistema-experto/scripts/generar.ts` y limpiar las
-  columnas visibles.
+- Las Description de las columnas de la Hoja salen con basura («[Threaded
+  comment] Your version of Excel…»). El generador ya no la produce
+  (2026-10-20); falta limpiar las columnas visibles en la Hoja/AppSheet.
 - Restos de pruebas en la Hoja: `SOL-0002` quedó «Aprobada» por la prueba
   real del 22-09 (con su registro en `Historial_Estados`), y hay una fila
   de prueba de SOL-0001 (Aprobada→Aprobada, 2026-09-27) que solo el
