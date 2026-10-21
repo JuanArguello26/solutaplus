@@ -50,10 +50,36 @@ function sincronizarEnlaces() {
   }
 }
 
+/**
+ * Escribe en Export.URL_Excel el enlace directo de descarga del reporte
+ * Excel mas reciente. Se ejecuta cada minuto junto con sincronizarEnlaces.
+ */
+function sincronizarExcel() {
+  var hoja = SpreadsheetApp.openById(ID_HOJA).getSheetByName('Export');
+  var datos = hoja.getDataRange().getValues();
+  var cUrl = datos[0].indexOf('URL_Excel');
+  if (cUrl < 0 || datos.length < 2) return;
+  var archivos = DriveApp.searchFiles("title contains 'Reporte de solicitudes - ' and trashed = false");
+  var mejor = null;
+  while (archivos.hasNext()) {
+    var f = archivos.next();
+    if (!/\.xlsx$/.test(f.getName())) continue;
+    if (!mejor || f.getLastUpdated() > mejor.getLastUpdated()) mejor = f;
+  }
+  if (!mejor) return;
+  var url = 'https://drive.google.com/uc?export=download&id=' + mejor.getId();
+  if (datos[1][cUrl] !== url) hoja.getRange(2, cUrl + 1).setValue(url);
+}
+
+function sincronizarTodo() {
+  sincronizarEnlaces();
+  sincronizarExcel();
+}
+
 /** Ejecutar una sola vez para crear el disparador de cada minuto. */
 function instalarDisparador() {
   ScriptApp.getProjectTriggers().forEach(function (t) {
-    if (t.getHandlerFunction() === 'sincronizarEnlaces') ScriptApp.deleteTrigger(t);
+    if (t.getHandlerFunction() === 'sincronizarTodo') ScriptApp.deleteTrigger(t);
   });
-  ScriptApp.newTrigger('sincronizarEnlaces').timeBased().everyMinutes(1).create();
+  ScriptApp.newTrigger('sincronizarTodo').timeBased().everyMinutes(1).create();
 }

@@ -693,6 +693,15 @@ valida (no son del sistema experto).
   temporal queda sin terminar). **Celular sin probar** (la app de Drive del teléfono
   puede interceptar el enlace). El Excel sigue por el script `?nombre=`.
 
+- **Excel directo (2026-10-20, noche):** igual que el PDF. Columna nueva `URL_Excel` en la
+  pestaña Export de la Hoja (H1) y en la tabla `Export` de AppSheet (no obligatoria ni
+  editable); `sincronizarExcel()` escribe ahí el enlace de descarga del `.xlsx` más
+  reciente (el disparador de 1 min ahora ejecuta `sincronizarTodo`). La acción
+  `AcciónReporteExportar` usa `URL_Excel` si contiene `export=download` y, si no, el
+  script `?nombre=`. Hasta 1 min de retraso tras «Crear Archivo». En la app móvil el Excel
+  está en el menú → «Reporte» (botones flotantes). Pendiente: confirmar que la
+  descarga termina (Brave pidió aceptar descargas de `drive.google.com`/`script.google.com`).
+
 #### Auditoría del Módulo 9 (2026-09-22)
 
 Se comparó la app contra `esquema.ts` de forma automática (un script
